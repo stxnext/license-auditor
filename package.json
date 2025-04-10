@@ -24,7 +24,8 @@
     "test:coverage": "turbo run test:coverage",
     "test:unit": "turbo run test:unit",
     "test:upload-coverage": "cat packages/core/coverage/lcov.info | codecov",
-    "test:e2e": "turbo run test:e2e"
+    "test:e2e": "turbo run test:e2e",
+    "postinstall": "patch-package"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.3",
@@ -39,7 +40,12 @@
     "node": ">=20"
   },
   "packageManager": "npm@10.8.2",
-  "workspaces": ["packages/*", "tooling/*", "test", "apps/*"],
+  "workspaces": [
+    "packages/*",
+    "tooling/*",
+    "test",
+    "apps/*"
+  ],
   "bin": {
     "license-auditor": "packages/cli/dist/cli.js"
   },
@@ -54,5 +60,8 @@
         "cli-spinners": "2.9.2"
       }
     }
+  },
+  "dependencies": {
+    "patch-package": "8.0.0"
   }
 }
