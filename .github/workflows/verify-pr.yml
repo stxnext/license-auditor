@@ -41,7 +41,9 @@ jobs:
         run: npm run build
 
       - name: Install lac
-        run:  npm i -g @brainhubeu/lac
+        run: |
+          npm install -g node-gyp
+          npm install -g @brainhubeu/lac
 
       - name: Run audit
       #Add `--bail 1` flag when it will be available on npm
