@@ -33,5 +33,3 @@ yarn-error.log*
 .DS_Store
 *.pem
 .aider*
-
-# Test workflow change
