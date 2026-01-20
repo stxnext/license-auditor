@@ -164,7 +164,9 @@ You can add License Auditor to your CI pipeline to ensure that the project's dep
       ### This part below should be added to your CI configuration file. ###
 
       - name: Install lac
-        run:  npm i -g @brainhubeu/lac
+        run: |  
+          npm i -g node-gyp
+          npm i -g @brainhubeu/lac
 
       - name: Run audit
         run: lac --default-config --bail 1
