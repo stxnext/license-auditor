@@ -35,7 +35,9 @@
       "interactive": true
     },
     "test:unit": {},
-    "test:coverage": {},
+    "test:coverage": {
+      "dependsOn": ["^build"]
+    },
     "test:e2e": {}
   }
 }

@@ -2,6 +2,11 @@
 
 ## Prerequisites
 
+### Node.js
+
+-   Node.js 20 or newer is required.
+-   Node.js 20.x (LTS) is recommended for local development and CI consistency.
+
 ### Supported package managers
 
 -   npm
@@ -35,7 +40,7 @@ The results will be printed in the console.
 
 -   `--verbose` - Verbose output (default: false)
 -   `--filter [filter]` - Filter verbose output by license status - whitelist, blacklist, or unknown
--   `--json [json]` - Save the result to a JSON file. If no path is not provided, a file named license-auditor.results.json will be created in the current directory.
+-   `--json [json]` - Save the result to a JSON file. If no path is provided, a file named license-auditor.results.json will be created in the current directory.
 -   `--production` - Skip the audit for licenses in development dependencies (default: false)
 -   `--default-config` - Run audit with default whitelist/blacklist configuration
 -   `--filter-regex [regex]` - Run audit with a custom regex filter that will be applied to the package name
@@ -164,7 +169,9 @@ You can add License Auditor to your CI pipeline to ensure that the project's dep
       ### This part below should be added to your CI configuration file. ###
 
       - name: Install lac
-        run:  npm i -g @brainhubeu/lac
+        run: |  
+          npm i -g node-gyp
+          npm i -g @brainhubeu/lac
 
       - name: Run audit
         run: lac --default-config --bail 1

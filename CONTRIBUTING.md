@@ -2,18 +2,26 @@
 
 ## Local development and testing
 
-1. Build packages repo packages
+1. Use Node.js 20 (recommended) or newer
+
+- If you use `nvm`, run `nvm use` (the project includes `.nvmrc`),
+- CI uses Node.js 20, so matching it locally is recommended.
+
+2. Install dependencies
+
+- Run `npm i` in project root.
+
+3. Build packages
 
 - Run `npm run build` in root, turbo should handle building the app,
 - If you encounter errors during build, check the code,
-- Build order should be tooling > core > cli,
+- Build order should be tooling > core > cli.
 
-2. Run `npm i`
-3. Run `npm run cli:init` in the root of the project
+4. Run `npm run cli:init` in the root of the project
 
-- Complete the configuration wizard
+- Complete the configuration wizard.
 
-4. Run `npm run cli` in the root of the project
+5. Run `npm run cli` in the root of the project
 
 - If you want to run the tool in a different directory, use `npx [...path]/license-auditor/packages/dist/cli.js`
 - Be mindful of user permissions (eg. [chown on cli.js](https://stackoverflow.com/questions/53455753/ubuntu-create-react-app-fails-with-permission-denied/53455921#53455921))

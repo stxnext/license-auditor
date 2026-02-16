@@ -1,6 +1,6 @@
 {
   "name": "@brainhubeu/license-auditor",
-  "version": "2.0.0-beta.1",
+  "version": "2.0.0",
   "description": "License Auditor helps you track and validate licenses inside your project. Prevents unwanted law complications. License Auditor includes a step in your pipeline and creates notifications about potential problems with used licenses. At the moment, a notification means a comment.",
   "repository": {
     "type": "git",
@@ -24,7 +24,8 @@
     "test:coverage": "turbo run test:coverage",
     "test:unit": "turbo run test:unit",
     "test:upload-coverage": "cat packages/core/coverage/lcov.info | codecov",
-    "test:e2e": "turbo run test:e2e"
+    "test:e2e": "turbo run test:e2e",
+    "postinstall": "patch-package"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.3",
@@ -54,5 +55,8 @@
         "cli-spinners": "2.9.2"
       }
     }
+  },
+  "dependencies": {
+    "patch-package": "8.0.0"
   }
 }
