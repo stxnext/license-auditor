@@ -183,6 +183,42 @@ You can add License Auditor to your CI pipeline to ensure that the project's dep
         run: lac --default-config --strict --bail 1
 ```
 
+## Experimental 3.0 release process
+
+The experimental `3.0` release uses npm distribution with embedded platform binaries.
+
+### Required secrets and access
+
+- GitHub Actions secret `NPM_TOKEN` with publish access to:
+  - `@brainhubeu/lac`
+  - `@brainhubeu/lac-bin-*`
+- npm package versions must be bumped before running publish (npm will reject already published versions).
+
+### Publish order
+
+1. Build all CLI binaries.
+2. Sync binaries into platform packages.
+3. Publish platform packages:
+   - `@brainhubeu/lac-bin-darwin-arm64`
+   - `@brainhubeu/lac-bin-darwin-x64`
+   - `@brainhubeu/lac-bin-linux-arm64`
+   - `@brainhubeu/lac-bin-linux-x64`
+   - `@brainhubeu/lac-bin-win32-arm64`
+   - `@brainhubeu/lac-bin-win32-x64`
+4. Publish `@brainhubeu/lac` (root CLI package with `optionalDependencies` on all platform packages).
+
+### GitHub Actions workflow
+
+Use `.github/workflows/release-experimental-3.yml`.
+
+- Trigger: manual (`workflow_dispatch`)
+- Inputs:
+  - `npm_tag` (default: `next`)
+  - `dry_run` (default: `true`)
+- Behavior:
+  - `dry_run=true`: builds binaries, validates package contents with `npm pack --dry-run`, does not publish.
+  - `dry_run=false`: publishes platform packages first, then publishes `@brainhubeu/lac`.
+
 ## Known issues
 
 ### "missing: some-package@>=3.0.0, required by some-other-package@5.0.1"

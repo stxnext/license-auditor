@@ -30,3 +30,12 @@
 
 - To run unit tests, run `test:unit` from the project root
 - To run E2E tests, run `test:e2e` from the project root
+
+## Experimental 3.0 publishing
+
+The experimental `3.0` release is published via `.github/workflows/release-experimental-3.yml`.
+
+1. Bump versions for `@brainhubeu/lac` and all `@brainhubeu/lac-bin-*` packages.
+2. Run workflow with `dry_run=true` first to validate binary build and package contents.
+3. Run workflow with `dry_run=false` to publish.
+4. Keep publish order unchanged: all platform `lac-bin-*` packages first, then `@brainhubeu/lac`.
