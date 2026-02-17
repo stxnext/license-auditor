@@ -29,7 +29,7 @@ const mappings = [
     targetFile: "lac",
   },
   {
-    source: "lac-win32-arm64.exe",
+    source: "lac-win32-x64.exe",
     targetDir: "packages/lac-bin-win32-arm64/bin",
     targetFile: "lac.exe",
   },
@@ -51,7 +51,7 @@ for (const mapping of mappings) {
     await fs.chmod(targetPath, 0o755);
   }
 
-  // Remove placeholders left in bin directories
+  // Remove placeholders left in bin directories.
   const readmePath = path.join(path.dirname(targetPath), "README.md");
   try {
     await fs.unlink(readmePath);

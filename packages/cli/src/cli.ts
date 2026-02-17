@@ -9,6 +9,7 @@ const program = new Command();
 program
   .name("lac")
   .description("License Auditor CLI")
+  .version("3.0.0", "-v, --version", "Show version number")
   .option("--verbose", "Verbose output", false)
   .option(
     "--strict",

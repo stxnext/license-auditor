@@ -205,7 +205,9 @@ The experimental `3.0` release uses npm distribution with embedded platform bina
    - `@brainhubeu/lac-bin-linux-x64`
    - `@brainhubeu/lac-bin-win32-arm64`
    - `@brainhubeu/lac-bin-win32-x64`
-4. Publish `@brainhubeu/lac` (root CLI package with `optionalDependencies` on all platform packages).
+4. Publish `@brainhubeu/lac` (root CLI package with `optionalDependencies` on platform packages).
+
+Note: with current Bun `1.3.x`, `win32-arm64` binary compilation is unavailable in this flow, so `@brainhubeu/lac-bin-win32-arm64` is populated with the `win32-x64` executable.
 
 ### GitHub Actions workflow
 

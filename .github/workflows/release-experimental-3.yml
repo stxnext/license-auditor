@@ -53,6 +53,8 @@ jobs:
           test -f packages/lac-bin-darwin-x64/bin/lac
           test -f packages/lac-bin-linux-arm64/bin/lac
           test -f packages/lac-bin-linux-x64/bin/lac
+          # Bun 1.3.x does not provide bun-windows-arm64 compile target here.
+          # We currently distribute the win32-x64 binary in the win32-arm64 package.
           test -f packages/lac-bin-win32-arm64/bin/lac.exe
           test -f packages/lac-bin-win32-x64/bin/lac.exe
 

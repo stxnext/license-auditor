@@ -1,1 +1,7 @@
-export type { ConfigType } from "@license-auditor/data";
+export type OverrideSeverity = "warn" | "off";
+
+export type ConfigType = {
+  whitelist: string[];
+  blacklist: string[];
+  overrides?: Record<string, OverrideSeverity>;
+};

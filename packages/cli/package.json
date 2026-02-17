@@ -14,21 +14,21 @@
   },
   "scripts": {
     "build": "npm run clean && npm run build:types && npm run build:binary:current",
-    "clean": "rm -rf dist dist-binary",
+    "clean": "rm -rf dist dist-binary bin/platform",
     "build:types": "tsc -p tsconfig.json",
-    "build:binaries": "npm run build:binary:darwin-arm64 && npm run build:binary:darwin-x64 && npm run build:binary:linux-arm64 && npm run build:binary:linux-x64 && npm run build:binary:win32-arm64 && npm run build:binary:win32-x64",
+    "build:binaries": "npm run build:binary:darwin-arm64 && npm run build:binary:darwin-x64 && npm run build:binary:linux-arm64 && npm run build:binary:linux-x64 && npm run build:binary:win32-x64",
     "build:binary:current": "bun build --compile ./src/cli.ts --outfile ./dist-binary/lac",
     "sync:platform-binaries": "node ./scripts/sync-platform-binaries.mjs",
     "build:binary:darwin-arm64": "bun build --compile --target=bun-darwin-arm64 ./src/cli.ts --outfile ./dist-binary/lac-darwin-arm64",
     "build:binary:darwin-x64": "bun build --compile --target=bun-darwin-x64 ./src/cli.ts --outfile ./dist-binary/lac-darwin-x64",
     "build:binary:linux-arm64": "bun build --compile --target=bun-linux-arm64 ./src/cli.ts --outfile ./dist-binary/lac-linux-arm64",
     "build:binary:linux-x64": "bun build --compile --target=bun-linux-x64 ./src/cli.ts --outfile ./dist-binary/lac-linux-x64",
-    "build:binary:win32-arm64": "bun build --compile --target=bun-windows-arm64 ./src/cli.ts --outfile ./dist-binary/lac-win32-arm64.exe",
     "build:binary:win32-x64": "bun build --compile --target=bun-windows-x64 ./src/cli.ts --outfile ./dist-binary/lac-win32-x64.exe",
     "dev:cli": "bun src/cli.ts",
     "dev:cli:init": "bun src/cli.ts init",
     "cli": "bun src/cli.ts",
     "cli:init": "bun src/cli.ts init",
+    "prepack": "npm run build",
     "typecheck": "tsgo --noEmit",
     "typecheck:tsc": "tsc --noEmit true",
     "test:unit": "vitest run",
@@ -38,13 +38,7 @@
     "dist",
     "bin"
   ],
-  "dependencies": {
-    "@brainhubeu/license-auditor-core": "*",
-    "@clack/prompts": "1.0.1",
-    "@license-auditor/data": "*",
-    "commander": "14.0.3",
-    "picocolors": "1.1.1"
-  },
+  "dependencies": {},
   "optionalDependencies": {
     "@brainhubeu/lac-bin-darwin-arm64": "3.0.0",
     "@brainhubeu/lac-bin-darwin-x64": "3.0.0",
@@ -54,8 +48,13 @@
     "@brainhubeu/lac-bin-win32-x64": "3.0.0"
   },
   "devDependencies": {
+    "@brainhubeu/license-auditor-core": "*",
+    "@clack/prompts": "1.0.1",
+    "@license-auditor/data": "*",
     "@license-auditor/typescript-config": "*",
     "@types/node": "22.10.2",
+    "commander": "14.0.3",
+    "picocolors": "1.1.1",
     "typescript": "5.6.2",
     "vitest": "2.1.5"
   },
