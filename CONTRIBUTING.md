@@ -2,10 +2,10 @@
 
 ## Local development and testing
 
-1. Use Node.js 20 (recommended) or newer
+1. Use Node.js 20 (recommended) or newer and Bun 1.3.8+
 
 - If you use `nvm`, run `nvm use` (the project includes `.nvmrc`),
-- CI uses Node.js 20, so matching it locally is recommended.
+- CI uses Node.js 20 and Bun 1.3.9, so matching locally is recommended.
 
 2. Install dependencies
 
@@ -23,7 +23,7 @@
 
 5. Run `npm run cli` in the root of the project
 
-- If you want to run the tool in a different directory, use `npx [...path]/license-auditor/packages/dist/cli.js`
+- If you want to run the tool in a different directory, use `node [...path]/license-auditor/packages/cli/bin/lac.cjs`
 - Be mindful of user permissions (eg. [chown on cli.js](https://stackoverflow.com/questions/53455753/ubuntu-create-react-app-fails-with-permission-denied/53455921#53455921))
 
 ### Testing

@@ -2,10 +2,11 @@
 
 ## Prerequisites
 
-### Node.js
+### Node.js and Bun
 
--   Node.js 20 or newer is required.
--   Node.js 20.x (LTS) is recommended for local development and CI consistency.
+-   Node.js 20 or newer is required for workspace tooling and CI.
+-   Bun 1.3.8 or newer is required to build local CLI binaries.
+-   Published `@brainhubeu/lac` installs with prebuilt platform binaries, so end users do not need Bun installed.
 
 ### Supported package managers
 
@@ -14,6 +15,7 @@
 -   yarn 2+
     -   Applicable only for projects using `node_modules` installation. `Plug'n'Play` is not currently supported.
 -   pnpm
+-   bun
 
 ## Getting started
 
@@ -39,6 +41,7 @@ The results will be printed in the console.
 ## Available options
 
 -   `--verbose` - Verbose output (default: false)
+-   `--strict` - Treat dependency resolution warnings as failures (exit code 1)
 -   `--filter [filter]` - Filter verbose output by license status - whitelist, blacklist, or unknown
 -   `--json [json]` - Save the result to a JSON file. If no path is provided, a file named license-auditor.results.json will be created in the current directory.
 -   `--production` - Skip the audit for licenses in development dependencies (default: false)
@@ -160,6 +163,11 @@ You can add License Auditor to your CI pipeline to ensure that the project's dep
         with:
           node-version: 20
 
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.9
+
       - name: Install dependencies
         run: npm ci
 
@@ -169,12 +177,10 @@ You can add License Auditor to your CI pipeline to ensure that the project's dep
       ### This part below should be added to your CI configuration file. ###
 
       - name: Install lac
-        run: |  
-          npm i -g node-gyp
-          npm i -g @brainhubeu/lac
+        run: npm i -g @brainhubeu/lac
 
       - name: Run audit
-        run: lac --default-config --bail 1
+        run: lac --default-config --strict --bail 1
 ```
 
 ## Known issues

@@ -1,0 +1,11 @@
+{
+  "name": "@brainhubeu/lac-bin-linux-x64",
+  "version": "3.0.0",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "os": ["linux"],
+  "cpu": ["x64"],
+  "files": ["bin"]
+}

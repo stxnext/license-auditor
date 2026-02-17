@@ -1,0 +1,9 @@
+{
+  "name": "test-bun-project",
+  "version": "1.0.0",
+  "private": true,
+  "packageManager": "bun@1.3.9",
+  "dependencies": {
+    "lodash": "4.17.21"
+  }
+}

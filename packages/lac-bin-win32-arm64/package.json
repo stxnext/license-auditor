@@ -1,0 +1,11 @@
+{
+  "name": "@brainhubeu/lac-bin-win32-arm64",
+  "version": "3.0.0",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "os": ["win32"],
+  "cpu": ["arm64"],
+  "files": ["bin"]
+}

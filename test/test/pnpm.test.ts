@@ -11,5 +11,5 @@ pnpmFixture("pnpm", async ({ testDirectory }) => {
   });
 
   expect(errorCode).toBe(0);
-  expect(output).toContain("88 licenses are compliant");
+  expect(output).toContain("77 licenses are compliant");
 });

@@ -14,6 +14,11 @@ jobs:
         with:
           node-version: 20
 
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.9
+
       - name: Install dependencies
         run: npm ci
 
@@ -34,6 +39,11 @@ jobs:
         with:
           node-version: 20
 
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.9
+
       - name: Install dependencies
         run: npm ci
 
@@ -41,13 +51,10 @@ jobs:
         run: npm run build
 
       - name: Install lac
-        run: |
-          npm i -g node-gyp
-          npm i -g @brainhubeu/lac
+        run: npm i -g @brainhubeu/lac
 
       - name: Run audit
-        #Add `--bail 1` flag when it will be available on npm
-        run: lac --default-config
+        run: lac --default-config --strict
 
   test:
     runs-on: ubuntu-latest
@@ -60,6 +67,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.9
 
       - name: Install dependencies
         run: npm ci

@@ -7,7 +7,6 @@ import {
 } from "./file-utils.js";
 import { filterOverrides } from "./filter-overrides.js";
 import { filterWithFilterRegex } from "./filter-with-filter-regex.js";
-import { findPackageManager } from "./find-package-manager.js";
 import { findLicenses } from "./license-finder/find-license.js";
 import type { LicensesWithPathAndStatus } from "./license-finder/licenses-with-path.js";
 
@@ -46,9 +45,7 @@ export async function getAllLicenses({
   filterRegex,
   verbose,
 }: GetAllLicensesProps): Promise<GetAllLicensesResult> {
-  const packageManager = await findPackageManager(cwd);
   const { dependencies: packagePaths, warning } = await findDependencies({
-    packageManager,
     projectRoot: cwd,
     production,
     verbose,

@@ -22,6 +22,8 @@ coverage
 out/
 build
 dist
+dist-binary
+*.bun-build
 tsconfig.tsbuildinfo
 
 # Debug

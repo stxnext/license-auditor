@@ -9,6 +9,7 @@
 - yarn 2+
   - Applicable only for projects using `node_modules` installation. `Plug'n'Play` is not currently supported.
 - pnpm
+- bun
 
 ## Getting started
 
@@ -33,6 +34,7 @@ The results will be printed in the console.
 ## Available options
 
 - `--verbose` - Verbose output (default: false)
+- `--strict` - Treat dependency resolution warnings as failures (exit code 1)
 - `--filter [filter]` - Filter verbose output by license status - whitelist, blacklist, or unknown
 - `--json [json]` - Save the result to a JSON file. If no path is not provided, a file named license-auditor.results.json will be created in the current directory.
 - `--production` - Skip the audit for licenses in development dependencies (default: false)

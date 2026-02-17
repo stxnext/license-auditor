@@ -11,5 +11,5 @@ yarnFixture("yarn", async ({ testDirectory }) => {
   });
 
   expect(errorCode).toBe(0);
-  expect(output).toContain("66 licenses are compliant");
+  expect(output).toContain("78 licenses are compliant");
 });

@@ -10,6 +10,9 @@
     "typecheck": {
       "dependsOn": ["^build"]
     },
+    "typecheck:tsc": {
+      "dependsOn": ["^build"]
+    },
     "dev": {
       "cache": false,
       "persistent": true
