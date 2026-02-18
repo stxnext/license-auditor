@@ -1,6 +1,6 @@
 {
   "name": "@brainhubeu/lac",
-  "version": "3.0.0",
+  "version": "3.0.0-experimental.0",
   "license": "MIT",
   "type": "module",
   "main": "./dist/index.js",
@@ -40,12 +40,12 @@
   ],
   "dependencies": {},
   "optionalDependencies": {
-    "@brainhubeu/lac-bin-darwin-arm64": "3.0.0",
-    "@brainhubeu/lac-bin-darwin-x64": "3.0.0",
-    "@brainhubeu/lac-bin-linux-arm64": "3.0.0",
-    "@brainhubeu/lac-bin-linux-x64": "3.0.0",
-    "@brainhubeu/lac-bin-win32-arm64": "3.0.0",
-    "@brainhubeu/lac-bin-win32-x64": "3.0.0"
+    "@brainhubeu/lac-bin-darwin-arm64": "3.0.0-experimental.0",
+    "@brainhubeu/lac-bin-darwin-x64": "3.0.0-experimental.0",
+    "@brainhubeu/lac-bin-linux-arm64": "3.0.0-experimental.0",
+    "@brainhubeu/lac-bin-linux-x64": "3.0.0-experimental.0",
+    "@brainhubeu/lac-bin-win32-arm64": "3.0.0-experimental.0",
+    "@brainhubeu/lac-bin-win32-x64": "3.0.0-experimental.0"
   },
   "devDependencies": {
     "@brainhubeu/license-auditor-core": "*",

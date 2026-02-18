@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       npm_tag:
-        description: "npm dist-tag to publish under (for example: next, latest)"
+        description: "npm dist-tag to publish under (for example: experimental)"
         required: true
-        default: "next"
+        default: "experimental"
       dry_run:
         description: "Skip npm publish and run build/pack validation only"
         required: true
@@ -37,6 +37,14 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Guard npm tag
+        if: ${{ inputs.dry_run == false }}
+        run: |
+          if [ "${{ inputs.npm_tag }}" = "latest" ]; then
+            echo "Refusing to publish experimental release under 'latest'. Use 'experimental'."
+            exit 1
+          fi
 
       - name: Build workspace packages
         run: npm run build

@@ -185,7 +185,7 @@ You can add License Auditor to your CI pipeline to ensure that the project's dep
 
 ## Experimental 3.0 release process
 
-The experimental `3.0` release uses npm distribution with embedded platform binaries.
+The experimental `3.0` release uses npm distribution with embedded platform binaries and a prerelease version (for example `3.0.0-experimental.0`).
 
 ### Required secrets and access
 
@@ -215,11 +215,12 @@ Use `.github/workflows/release-experimental-3.yml`.
 
 - Trigger: manual (`workflow_dispatch`)
 - Inputs:
-  - `npm_tag` (default: `next`)
+  - `npm_tag` (default: `experimental`)
   - `dry_run` (default: `true`)
 - Behavior:
   - `dry_run=true`: builds binaries, validates package contents with `npm pack --dry-run`, does not publish.
   - `dry_run=false`: publishes platform packages first, then publishes `@brainhubeu/lac`.
+  - Guardrail: publishing with `npm_tag=latest` is blocked for this workflow.
 
 ## Known issues
 

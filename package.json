@@ -1,6 +1,6 @@
 {
   "name": "@brainhubeu/license-auditor",
-  "version": "3.0.0",
+  "version": "3.0.0-experimental.0",
   "description": "License Auditor helps you track and validate licenses inside your project. Prevents unwanted law complications. License Auditor includes a step in your pipeline and creates notifications about potential problems with used licenses. At the moment, a notification means a comment.",
   "repository": {
     "type": "git",
