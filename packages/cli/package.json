@@ -13,10 +13,10 @@
     }
   },
   "scripts": {
-    "build": "npm run clean && npm run build:types && npm run build:binary:current",
+    "build": "bun run clean && bun run build:types && bun run build:binary:current",
     "clean": "rm -rf dist dist-binary bin/platform",
     "build:types": "tsc -p tsconfig.json",
-    "build:binaries": "npm run build:binary:darwin-arm64 && npm run build:binary:darwin-x64 && npm run build:binary:linux-arm64 && npm run build:binary:linux-x64 && npm run build:binary:win32-x64",
+    "build:binaries": "bun run build:binary:darwin-arm64 && bun run build:binary:darwin-x64 && bun run build:binary:linux-arm64 && bun run build:binary:linux-x64 && bun run build:binary:win32-x64",
     "build:binary:current": "bun build --compile ./src/cli.ts --outfile ./dist-binary/lac",
     "sync:platform-binaries": "node ./scripts/sync-platform-binaries.mjs",
     "build:binary:darwin-arm64": "bun build --compile --target=bun-darwin-arm64 ./src/cli.ts --outfile ./dist-binary/lac-darwin-arm64",
@@ -28,7 +28,7 @@
     "dev:cli:init": "bun src/cli.ts init",
     "cli": "bun src/cli.ts",
     "cli:init": "bun src/cli.ts init",
-    "prepack": "npm run build",
+    "prepack": "bun run build",
     "typecheck": "tsgo --noEmit",
     "typecheck:tsc": "tsc --noEmit true",
     "test:unit": "vitest run",

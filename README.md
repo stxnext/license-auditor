@@ -169,18 +169,15 @@ You can add License Auditor to your CI pipeline to ensure that the project's dep
           bun-version: 1.3.9
 
       - name: Install dependencies
-        run: npm ci
+        run: bun install --frozen-lockfile
 
       - name: Build
-        run: npm run build
+        run: bun run build
 
       ### This part below should be added to your CI configuration file. ###
 
-      - name: Install lac
-        run: npm i -g @brainhubeu/lac
-
       - name: Run audit
-        run: lac --default-config --strict --bail 1
+        run: bunx @brainhubeu/lac --default-config --strict --bail 1
 ```
 
 ## Stable 3.x release process
@@ -209,20 +206,20 @@ Stable release is automated from GitHub Releases after this branch is merged to 
 
 ```bash
 export NODE_AUTH_TOKEN=your_publish_capable_npm_token
-npm run release:stable -- --version 3.0.0 --dry-run
-npm run release:stable -- --version 3.0.0
+bun run release:stable -- --version 3.0.0 --dry-run
+bun run release:stable -- --version 3.0.0
 ```
 
 ## Experimental 3.0 release process
 
-The experimental `3.0` release uses npm distribution with embedded platform binaries and a prerelease version (for example `3.0.0-experimental.0`).
+The experimental `3.0` release uses npm registry distribution with embedded platform binaries and a prerelease version (for example `3.0.0-experimental.0`).
 
 ### Required secrets and access
 
 - GitHub Actions secret `NPM_TOKEN` with publish access to:
   - `@brainhubeu/lac`
   - `@brainhubeu/lac-bin-*`
-- npm package versions must be bumped before running publish (npm will reject already published versions).
+- Package versions must be bumped before running publish (the registry rejects already published versions).
 
 ### Publish order
 
@@ -245,15 +242,15 @@ Use a single script for auth check, dry-run, and publish:
 
 ```bash
 export NODE_AUTH_TOKEN=your_publish_capable_npm_token
-npm run release:experimental -- --check-auth
-npm run release:experimental -- --experimental-number 1 --dry-run
-npm run release:experimental -- --experimental-number 1
+bun run release:experimental -- --check-auth
+bun run release:experimental -- --experimental-number 1 --dry-run
+bun run release:experimental -- --experimental-number 1
 ```
 
 Optional custom tag:
 
 ```bash
-npm run release:experimental -- --tag experimental
+bun run release:experimental -- --tag experimental
 ```
 
 Notes:
@@ -272,7 +269,7 @@ Use `.github/workflows/release-experimental-3.yml`.
   - `npm_tag` (default: `experimental`)
   - `dry_run` (default: `true`)
 - Behavior:
-  - `dry_run=true`: builds binaries, validates package contents with `npm pack --dry-run`, does not publish.
+  - `dry_run=true`: builds binaries, validates package contents with `bun pm pack --dry-run`, does not publish.
   - `dry_run=false`: publishes platform packages first, then publishes `@brainhubeu/lac`.
   - Guardrail: publishing with `npm_tag=latest` is blocked for this workflow.
 

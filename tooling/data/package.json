@@ -11,7 +11,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "npm run clean && tsc -p tsconfig.build.json",
+    "build": "bun run clean && tsc -p tsconfig.build.json",
     "clean": "rm -rf dist",
     "dev": "tsc --watch -p tsconfig.json",
     "update-licenses": "bun src/licenses/update-licenses.ts"

@@ -58,7 +58,7 @@ const getInstallCommand = async (projectDirectory: string) => {
 
     return `${yarnLocalPath} install`;
   }
-  return "npm i";
+  return "bun install";
 };
 
 const prepareTestProject = async (projectDirectory: string) => {

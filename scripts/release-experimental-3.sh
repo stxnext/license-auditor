@@ -6,7 +6,6 @@ DRY_RUN="false"
 CHECK_AUTH_ONLY="false"
 CLEANUP_RELEASE_BINARIES="${CLEANUP_RELEASE_BINARIES:-true}"
 SYNCED_PLATFORM_BINARIES="false"
-TEMP_NPM_CONFIG_FILE=""
 EXPERIMENTAL_NUMBER=""
 
 PACKAGE_DIRS=(
@@ -24,11 +23,11 @@ usage() {
 Usage: scripts/release-experimental-3.sh [options]
 
 Options:
-  --tag <name>      npm dist-tag (default: experimental)
+  --tag <name>      release dist-tag (default: experimental)
   --experimental-number <n>
                     set target prerelease version (3.0.0-experimental.<n>)
-  --dry-run         Build/sync and run npm pack --dry-run only
-  --check-auth      Verify npm auth and exit
+  --dry-run         Build/sync and run package dry-run only
+  --check-auth      Verify registry auth and exit
   -h, --help        Show this help
 USAGE
 }
@@ -47,12 +46,24 @@ publish_if_missing() {
   package_name="$(read_package_field "$package_dir" "name")"
   package_version="$(read_package_field "$package_dir" "version")"
 
-  if npm view "${package_name}@${package_version}" version --json >/dev/null 2>&1; then
+  if package_exists_in_registry "$package_name" "$package_version"; then
     echo "Skipping ${package_name}@${package_version} (already published)."
     return 0
   fi
 
-  npm publish "$package_dir" --access public --tag "${TAG}"
+  (
+    cd "$package_dir"
+    bun publish --access public --tag "${TAG}"
+  )
+}
+
+dry_run_package() {
+  local package_dir="$1"
+
+  (
+    cd "$package_dir"
+    bun pm pack --dry-run
+  )
 }
 
 write_release_versions() {
@@ -92,11 +103,13 @@ NODE
 const fs = require('fs');
 const filePath = './packages/cli/src/cli.ts';
 const content = fs.readFileSync(filePath, 'utf8');
-const next = content.replace(
-  /\.version\("([^"]+)", "-v, --version", "Show version number"\)/,
-  `.version("${process.env.VERSION_STRING}", "-v, --version", "Show version number")`
-);
-if (next === content) {
+const pattern = /\.version\(\s*"[^"]+"\s*,\s*"-v, --version"\s*,\s*"Show version number"\s*\)/;
+let matched = false;
+const next = content.replace(pattern, () => {
+  matched = true;
+  return `.version("${process.env.VERSION_STRING}", "-v, --version", "Show version number")`;
+});
+if (!matched) {
   throw new Error('Could not update CLI version string in packages/cli/src/cli.ts');
 }
 fs.writeFileSync(filePath, next);
@@ -137,7 +150,7 @@ resolve_target_version() {
 package_exists_in_registry() {
   local package_name="$1"
   local package_version="$2"
-  npm view "${package_name}@${package_version}" version --json >/dev/null 2>&1
+  bun pm view "${package_name}@${package_version}" version >/dev/null 2>&1
 }
 
 check_registry_release_state() {
@@ -156,7 +169,7 @@ check_registry_release_state() {
   done
 
   if (( existing_count == total_count )); then
-    echo "All release packages already exist in npm for ${target_version}. Choose a higher --experimental-number." >&2
+    echo "All release packages already exist in the registry for ${target_version}. Choose a higher --experimental-number." >&2
     exit 1
   fi
 
@@ -228,10 +241,6 @@ cleanup_runtime() {
   if [[ "$CLEANUP_RELEASE_BINARIES" == "true" && "$SYNCED_PLATFORM_BINARIES" == "true" ]]; then
     cleanup_generated_binaries
   fi
-
-  if [[ -n "$TEMP_NPM_CONFIG_FILE" && -f "$TEMP_NPM_CONFIG_FILE" ]]; then
-    rm -f "$TEMP_NPM_CONFIG_FILE"
-  fi
 }
 
 trap cleanup_runtime EXIT
@@ -252,28 +261,22 @@ fi
 if [[ "$REQUIRES_TOKEN_AUTH" == "true" && -z "${NODE_AUTH_TOKEN:-}" ]]; then
   cat >&2 <<'EOF'
 NODE_AUTH_TOKEN is required for this mode.
-Export a publish-capable npm automation token before running:
+Export a publish-capable automation token before running:
   export NODE_AUTH_TOKEN=your_token_here
 EOF
   exit 1
 fi
 
-if [[ -n "${NODE_AUTH_TOKEN:-}" ]]; then
-  TEMP_NPM_CONFIG_FILE="$(mktemp)"
-  cat > "$TEMP_NPM_CONFIG_FILE" <<'EOF'
-save-exact=true
-//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}
-EOF
-  export NPM_CONFIG_USERCONFIG="$TEMP_NPM_CONFIG_FILE"
+if [[ "$REQUIRES_TOKEN_AUTH" == "true" || -n "${NODE_AUTH_TOKEN:-}" ]]; then
+  echo "Checking registry authentication..."
+  if ! NPM_USER="$(bun pm whoami 2>/dev/null)"; then
+    echo "Registry auth check failed. Ensure NODE_AUTH_TOKEN is valid and has publish access." >&2
+    exit 1
+  fi
+  echo "Authenticated as: ${NPM_USER}"
+else
+  echo "Skipping auth check (dry-run mode without token)."
 fi
-
-echo "Checking npm authentication..."
-if ! NPM_USER="$(npm whoami 2>/dev/null)"; then
-  echo "npm auth check failed. Ensure NODE_AUTH_TOKEN is valid and has publish access." >&2
-  exit 1
-fi
-
-echo "Authenticated as: ${NPM_USER}"
 
 if [[ "$CHECK_AUTH_ONLY" == "true" ]]; then
   echo "Auth check passed."
@@ -285,21 +288,21 @@ check_registry_release_state "$TARGET_VERSION"
 write_release_versions "$TARGET_VERSION"
 
 echo "Building platform binaries..."
-npm run build:binaries --workspace=packages/cli
+bun run --cwd ./packages/cli build:binaries
 
 echo "Syncing binaries to platform packages..."
-npm run sync:platform-binaries --workspace=packages/cli
+bun run --cwd ./packages/cli sync:platform-binaries
 SYNCED_PLATFORM_BINARIES="true"
 
 if [[ "$DRY_RUN" == "true" ]]; then
   echo "Running package dry-runs..."
-  npm pack --dry-run ./packages/lac-bin-darwin-arm64
-  npm pack --dry-run ./packages/lac-bin-darwin-x64
-  npm pack --dry-run ./packages/lac-bin-linux-arm64
-  npm pack --dry-run ./packages/lac-bin-linux-x64
-  npm pack --dry-run ./packages/lac-bin-win32-arm64
-  npm pack --dry-run ./packages/lac-bin-win32-x64
-  npm pack --dry-run ./packages/cli
+  dry_run_package ./packages/lac-bin-darwin-arm64
+  dry_run_package ./packages/lac-bin-darwin-x64
+  dry_run_package ./packages/lac-bin-linux-arm64
+  dry_run_package ./packages/lac-bin-linux-x64
+  dry_run_package ./packages/lac-bin-win32-arm64
+  dry_run_package ./packages/lac-bin-win32-x64
+  dry_run_package ./packages/cli
   echo "Dry-run completed successfully."
   exit 0
 fi

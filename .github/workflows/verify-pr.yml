@@ -20,13 +20,13 @@ jobs:
           bun-version: 1.3.9
 
       - name: Install dependencies
-        run: npm ci
+        run: bun install --frozen-lockfile
 
       - name: Run Biome
-        run: npx biome ci .
+        run: bunx biome ci .
 
       - name: Run typecheck
-        run: npm run typecheck
+        run: bun run typecheck
 
   license-audit:
     runs-on: ubuntu-latest
@@ -45,16 +45,13 @@ jobs:
           bun-version: 1.3.9
 
       - name: Install dependencies
-        run: npm ci
+        run: bun install --frozen-lockfile
 
       - name: Build
-        run: npm run build
-
-      - name: Install lac
-        run: npm i -g @brainhubeu/lac
+        run: bun run build
 
       - name: Run audit
-        run: lac --default-config --strict
+        run: bunx @brainhubeu/lac --default-config --strict
 
   test:
     runs-on: ubuntu-latest
@@ -74,16 +71,16 @@ jobs:
           bun-version: 1.3.9
 
       - name: Install dependencies
-        run: npm ci
+        run: bun install --frozen-lockfile
 
       - name: Build
-        run: npm run build
+        run: bun run build
 
       - name: Run tests and generate coverage
-        run: npm run test:coverage
+        run: bun run test:coverage
 
       - name: Run e2e tests
-        run: npm run test:e2e
+        run: bun run test:e2e
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4

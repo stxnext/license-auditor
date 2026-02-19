@@ -9,19 +9,19 @@
 
 2. Install dependencies
 
-- Run `npm i` in project root.
+- Run `bun install` in project root.
 
 3. Build packages
 
-- Run `npm run build` in root, turbo should handle building the app,
+- Run `bun run build` in root, turbo should handle building the app,
 - If you encounter errors during build, check the code,
 - Build order should be tooling > core > cli.
 
-4. Run `npm run cli:init` in the root of the project
+4. Run `bun run cli:init` in the root of the project
 
 - Complete the configuration wizard.
 
-5. Run `npm run cli` in the root of the project
+5. Run `bun run cli` in the root of the project
 
 - If you want to run the tool in a different directory, use `node [...path]/license-auditor/packages/cli/bin/lac.cjs`
 - Be mindful of user permissions (eg. [chown on cli.js](https://stackoverflow.com/questions/53455753/ubuntu-create-react-app-fails-with-permission-denied/53455921#53455921))
