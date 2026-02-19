@@ -22,6 +22,7 @@ describe("printAuditOutput strict mode", () => {
     printAuditOutput(createEmptyResult(), {
       verbose: false,
       strict: false,
+      production: false,
       filter: undefined,
       bail: undefined,
       warning: warningMessage,
@@ -35,6 +36,7 @@ describe("printAuditOutput strict mode", () => {
     printAuditOutput(createEmptyResult(), {
       verbose: false,
       strict: true,
+      production: false,
       filter: undefined,
       bail: undefined,
       warning: warningMessage,
@@ -51,6 +53,7 @@ describe("printAuditOutput strict mode", () => {
     printAuditOutput(createEmptyResult(), {
       verbose: false,
       strict: true,
+      production: false,
       filter: undefined,
       bail: undefined,
       warning: undefined,
@@ -58,6 +61,22 @@ describe("printAuditOutput strict mode", () => {
     });
 
     expect(process.exitCode).toBe(0);
+  });
+
+  it("prints production-specific no-license hint when production mode is enabled", () => {
+    printAuditOutput(createEmptyResult(), {
+      verbose: false,
+      strict: false,
+      production: true,
+      filter: undefined,
+      bail: undefined,
+      warning: undefined,
+      overrides: {},
+    });
+
+    expect(consoleSpy.mock.calls.flat().join("\n")).toContain(
+      "No licenses found in production dependencies",
+    );
   });
 });
 

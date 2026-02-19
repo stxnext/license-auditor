@@ -173,6 +173,42 @@ describe("findDependencies", () => {
     expect(result.warning).toContain("required by root");
   });
 
+  it("does not warn for missing devDependencies of external packages", async () => {
+    const projectRoot = await createProject();
+
+    await writePackageJson(projectRoot, {
+      name: "root",
+      dependencies: {
+        "dep-a": "1.0.0",
+      },
+    });
+
+    await writePackageJson(path.join(projectRoot, "node_modules", "dep-a"), {
+      name: "dep-a",
+      dependencies: {
+        "dep-b": "1.0.0",
+      },
+      devDependencies: {
+        "dep-dev-only": "1.0.0",
+      },
+    });
+
+    await writePackageJson(path.join(projectRoot, "node_modules", "dep-b"), {
+      name: "dep-b",
+    });
+
+    const result = await findDependencies({
+      projectRoot,
+      production: false,
+    });
+
+    const dependencyNames = await getDependencyNames(result.dependencies);
+
+    expect(dependencyNames).toEqual(expect.arrayContaining(["dep-a", "dep-b"]));
+    expect(dependencyNames).not.toContain("dep-dev-only");
+    expect(result.warning).toBeUndefined();
+  });
+
   it("does not warn for missing optional dependencies", async () => {
     const projectRoot = await createProject();
 

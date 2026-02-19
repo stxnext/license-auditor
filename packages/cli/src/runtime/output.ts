@@ -11,6 +11,7 @@ import { pluralize } from "../utils/pluralize.js";
 type OutputOptions = {
   verbose: boolean;
   strict: boolean;
+  production: boolean;
   filter: LicenseStatus | undefined;
   bail: number | undefined;
   warning?: string | undefined;
@@ -26,7 +27,7 @@ const ICONS = {
 
 export function printAuditOutput(
   result: LicenseAuditResult,
-  { verbose, strict, filter, bail, warning, overrides }: OutputOptions,
+  { verbose, strict, production, filter, bail, warning, overrides }: OutputOptions,
 ): void {
   const hasWhitelisted = result.groupedByStatus.whitelist.length > 0;
   const hasBlacklisted = result.groupedByStatus.blacklist.length > 0;
@@ -63,9 +64,15 @@ export function printAuditOutput(
     printDetectedLicenseList(result.groupedByStatus.blacklist, verbose);
   } else if (!(hasWhitelisted || hasBlacklisted || hasUnknown)) {
     printHeader("warning");
-    console.log(
-      `${ICONS.warning} No licenses found. If this is unexpected, please check your configuration file.`,
-    );
+    if (production) {
+      console.log(
+        `${ICONS.warning} No licenses found in production dependencies. If your project uses only devDependencies, this is expected.`,
+      );
+    } else {
+      console.log(
+        `${ICONS.warning} No licenses found. If this is unexpected, please check your configuration file.`,
+      );
+    }
   } else {
     printHeader(hasBlacklisted ? "failure" : "warning");
 

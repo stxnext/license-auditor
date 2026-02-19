@@ -65,6 +65,7 @@ export async function runAuditCommand({
   printAuditOutput(result, {
     verbose: Boolean(options.verbose),
     strict: Boolean(options.strict),
+    production: Boolean(options.production),
     filter: filterResult?.success ? filterResult.data : undefined,
     bail: options.bail,
     warning: result.warning,

@@ -311,7 +311,12 @@ async function resolveDependenciesRecursively({
       });
 
       if (!resolvedDependency) {
-        if (dependency.kind !== "optionalDependency") {
+        const shouldWarnForMissingDependency =
+          dependency.kind === "dependency" ||
+          (dependency.kind === "devDependency" &&
+            workspaceRealPaths.has(realCurrent));
+
+        if (shouldWarnForMissingDependency) {
           if (!unresolvedDependencies.has(dependencyName)) {
             unresolvedDependencies.set(dependencyName, new Set<string>());
           }
