@@ -209,6 +209,28 @@ The experimental `3.0` release uses npm distribution with embedded platform bina
 
 Note: with current Bun `1.3.x`, `win32-arm64` binary compilation is unavailable in this flow, so `@brainhubeu/lac-bin-win32-arm64` is populated with the `win32-x64` executable.
 
+### Local release script
+
+Use a single script for auth check, dry-run, and publish:
+
+```bash
+export NODE_AUTH_TOKEN=your_publish_capable_npm_token
+npm run release:experimental -- --check-auth
+npm run release:experimental -- --dry-run
+npm run release:experimental
+```
+
+Optional custom tag:
+
+```bash
+npm run release:experimental -- --tag experimental
+```
+
+Notes:
+- `NODE_AUTH_TOKEN` is required for `--check-auth` and real publish mode.
+- `--dry-run` does not require `NODE_AUTH_TOKEN`.
+- Script skips packages already published at the same version, so you can safely re-run after a partial release.
+
 ### GitHub Actions workflow
 
 Use `.github/workflows/release-experimental-3.yml`.

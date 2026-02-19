@@ -25,7 +25,8 @@
     "test:coverage": "turbo run test:coverage",
     "test:unit": "turbo run test:unit",
     "test:upload-coverage": "cat packages/core/coverage/lcov.info | codecov",
-    "test:e2e": "turbo run test:e2e"
+    "test:e2e": "turbo run test:e2e",
+    "release:experimental": "bash ./scripts/release-experimental-3.sh"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.3",
