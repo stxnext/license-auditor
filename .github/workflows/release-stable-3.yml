@@ -1,0 +1,83 @@
+name: Release Stable 3.x
+
+on:
+  release:
+    types:
+      - published
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Stable semver to publish (for example: 3.0.0)"
+        required: true
+      npm_tag:
+        description: "npm dist-tag to publish under (default: latest)"
+        required: true
+        default: "latest"
+      dry_run:
+        description: "Skip npm publish and run build/pack validation only"
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    if: ${{ github.event_name != 'release' || github.event.release.prerelease == false }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.9
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Resolve release version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            RAW_VERSION="${{ github.event.release.tag_name }}"
+          else
+            RAW_VERSION="${{ inputs.version }}"
+          fi
+
+          RESOLVED_VERSION="${RAW_VERSION#v}"
+          if ! echo "${RESOLVED_VERSION}" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "Invalid stable release version: ${RAW_VERSION}. Expected tag/input like v3.0.0 or 3.0.0."
+            exit 1
+          fi
+
+          echo "value=${RESOLVED_VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Determine dry run
+        id: mode
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            echo "dry_run=false" >> "$GITHUB_OUTPUT"
+            echo "npm_tag=latest" >> "$GITHUB_OUTPUT"
+          else
+            echo "dry_run=${{ inputs.dry_run }}" >> "$GITHUB_OUTPUT"
+            echo "npm_tag=${{ inputs.npm_tag }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run stable release script
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ "${{ steps.mode.outputs.dry_run }}" = "true" ]; then
+            npm run release:stable -- --version "${{ steps.version.outputs.value }}" --tag "${{ steps.mode.outputs.npm_tag }}" --dry-run
+          else
+            npm run release:stable -- --version "${{ steps.version.outputs.value }}" --tag "${{ steps.mode.outputs.npm_tag }}"
+          fi

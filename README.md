@@ -183,6 +183,36 @@ You can add License Auditor to your CI pipeline to ensure that the project's dep
         run: lac --default-config --strict --bail 1
 ```
 
+## Stable 3.x release process
+
+Stable release is automated from GitHub Releases after this branch is merged to default branch.
+
+### One-click stable release from GitHub
+
+1. Push/merge release-ready commits to default branch.
+2. Create GitHub Release with a stable tag like `v3.0.0` (not prerelease).
+3. Workflow `.github/workflows/release-stable-3.yml` runs automatically and:
+   - sets package versions to `3.0.0`,
+   - builds and syncs binaries into platform packages,
+   - publishes `@brainhubeu/lac-bin-*` packages first,
+   - publishes `@brainhubeu/lac` as `latest`.
+
+### Stable workflow notes
+
+- Trigger: `release.published` (for non-prerelease releases).
+- Manual fallback: `workflow_dispatch` on `.github/workflows/release-stable-3.yml`.
+- Required secret: `NPM_TOKEN` with publish access to:
+  - `@brainhubeu/lac`
+  - `@brainhubeu/lac-bin-*`
+
+### Local stable script (manual fallback)
+
+```bash
+export NODE_AUTH_TOKEN=your_publish_capable_npm_token
+npm run release:stable -- --version 3.0.0 --dry-run
+npm run release:stable -- --version 3.0.0
+```
+
 ## Experimental 3.0 release process
 
 The experimental `3.0` release uses npm distribution with embedded platform binaries and a prerelease version (for example `3.0.0-experimental.0`).
