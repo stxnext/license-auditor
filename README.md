@@ -216,8 +216,8 @@ Use a single script for auth check, dry-run, and publish:
 ```bash
 export NODE_AUTH_TOKEN=your_publish_capable_npm_token
 npm run release:experimental -- --check-auth
-npm run release:experimental -- --dry-run
-npm run release:experimental
+npm run release:experimental -- --experimental-number 1 --dry-run
+npm run release:experimental -- --experimental-number 1
 ```
 
 Optional custom tag:
@@ -229,6 +229,8 @@ npm run release:experimental -- --tag experimental
 Notes:
 - `NODE_AUTH_TOKEN` is required for `--check-auth` and real publish mode.
 - `--dry-run` does not require `NODE_AUTH_TOKEN`.
+- `--experimental-number <n>` targets `3.0.0-experimental.<n>` based on current base version.
+- Script blocks publishing when `<n>` is lower than current local experimental number.
 - Script skips packages already published at the same version, so you can safely re-run after a partial release.
 
 ### GitHub Actions workflow
