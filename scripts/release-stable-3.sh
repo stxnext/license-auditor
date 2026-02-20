@@ -314,7 +314,7 @@ check_registry_release_state "$TARGET_VERSION"
 write_release_versions "$TARGET_VERSION"
 
 echo "Building platform binaries..."
-bun run --cwd ./packages/cli build:binaries
+bash ./scripts/build-cli-binaries.sh
 
 echo "Syncing binaries to platform packages..."
 bun run --cwd ./packages/cli sync:platform-binaries

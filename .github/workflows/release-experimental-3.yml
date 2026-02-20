@@ -12,6 +12,11 @@ on:
         required: true
         default: true
         type: boolean
+      linux_upx_runtime:
+        description: "Use UPX-compressed Bun runtime for Linux binaries only (experimental)"
+        required: true
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -49,8 +54,16 @@ jobs:
       - name: Build workspace packages
         run: bun run build
 
+      - name: Install UPX (optional Linux optimization)
+        if: ${{ inputs.linux_upx_runtime == true }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y upx-ucl || sudo apt-get install -y upx
+
       - name: Build all CLI binaries
-        run: bun --cwd ./packages/cli run build:binaries
+        env:
+          USE_LINUX_UPX_RUNTIME: ${{ inputs.linux_upx_runtime }}
+        run: bash ./scripts/build-cli-binaries.sh
 
       - name: Sync binaries to platform packages
         run: bun --cwd ./packages/cli run sync:platform-binaries

@@ -18,6 +18,11 @@ on:
         required: true
         default: true
         type: boolean
+      linux_upx_runtime:
+        description: "Use UPX-compressed Bun runtime for Linux binaries only (experimental)"
+        required: true
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -67,14 +72,27 @@ jobs:
           if [ "${{ github.event_name }}" = "release" ]; then
             echo "dry_run=false" >> "$GITHUB_OUTPUT"
             echo "npm_tag=latest" >> "$GITHUB_OUTPUT"
+            if [ "${{ vars.LINUX_UPX_RUNTIME }}" = "true" ]; then
+              echo "linux_upx_runtime=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "linux_upx_runtime=false" >> "$GITHUB_OUTPUT"
+            fi
           else
             echo "dry_run=${{ inputs.dry_run }}" >> "$GITHUB_OUTPUT"
             echo "npm_tag=${{ inputs.npm_tag }}" >> "$GITHUB_OUTPUT"
+            echo "linux_upx_runtime=${{ inputs.linux_upx_runtime }}" >> "$GITHUB_OUTPUT"
           fi
+
+      - name: Install UPX (optional Linux optimization)
+        if: ${{ steps.mode.outputs.linux_upx_runtime == 'true' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y upx-ucl || sudo apt-get install -y upx
 
       - name: Run stable release script
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          USE_LINUX_UPX_RUNTIME: ${{ steps.mode.outputs.linux_upx_runtime }}
         run: |
           if [ "${{ steps.mode.outputs.dry_run }}" = "true" ]; then
             bun run release:stable -- --version "${{ steps.version.outputs.value }}" --tag "${{ steps.mode.outputs.npm_tag }}" --dry-run
