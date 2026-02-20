@@ -2,14 +2,19 @@
 
 ## Prerequisites
 
-### Supported package managers
+### Supported ecosystems
 
-- npm
-- yarn classic (v1)
-- yarn 2+
-  - Applicable only for projects using `node_modules` installation. `Plug'n'Play` is not currently supported.
-- pnpm
-- bun
+- Node.js
+  - npm
+  - yarn classic (v1)
+  - yarn 2+
+    - Applicable only for projects using `node_modules` installation. `Plug'n'Play` is not currently supported.
+  - pnpm
+  - bun
+- Python (experimental)
+  - Installed environment (`.venv` or selected interpreter)
+  - `uv.lock` (via `uv export`)
+  - `requirements.txt` and `requirements/*.txt`
 
 ## Getting started
 
@@ -39,6 +44,11 @@ The results will be printed in the console.
 - `--json [json]` - Save the result to a JSON file. If no path is not provided, a file named license-auditor.results.json will be created in the current directory.
 - `--production` - Skip the audit for licenses in development dependencies (default: false)
 - `--default-config` - Run audit with default whitelist/blacklist configuration
+- `--filter-regex [regex]` - Run audit with a custom regex filter applied to package names
+- `--bail [number]` - Exit with status 1 when blacklisted license count exceeds threshold
+- `--ecosystem [auto|node|python|both]` - Select ecosystem scope (default: `auto`)
+- `--python [path]` - Override Python interpreter path for Python ecosystem audit
+- `--requirements [path]` - Provide requirements file path (repeatable)
 
 **Verify dev dependencies if they generate code, embed assets, or otherwise impact the final product, as their licenses might impose restrictions. Always prioritize reviewing both when in doubt or if your project may be redistributed or commercialized.**
 
@@ -50,9 +60,16 @@ All licenses are sourced from [SPDX license list](https://spdx.org/licenses/)
 
 - `whitelist` - array of SPDX license identifiers of licenses permitted within the project,
 - `blacklist` - array of SPDX license identifiers of licenses prohibited within the project,
+- `ecosystem` - optional ecosystem scope: `auto`, `node`, `python`, or `both`,
 - `overrides` - an object with the specified severity:
   - `warn` - package should be omitted from audit, but it will produce a warning,
   - `off`- package should be completely omitted from the audit.
+
+### Python mode (experimental)
+
+- Default `ecosystem: "auto"` detects Node and Python signals.
+- If both ecosystems are detected in auto mode, audit fails and asks for explicit selection via config `ecosystem` or `--ecosystem`.
+- `--production` for Python is best-effort and is precise for `uv.lock` source (`uv export --no-dev`).
 
 To use `ConfigType` and enable IntelliSense license suggestions in the configuration file, run:
 

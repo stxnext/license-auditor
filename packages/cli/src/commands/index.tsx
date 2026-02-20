@@ -37,6 +37,18 @@ export const options = z.object({
     .describe(
       "Flag is used to control the exit behavior of the CI process based on the number of blacklisted licenses. By default it is set to Infinity",
     ),
+  ecosystem: z
+    .enum(["auto", "node", "python", "both"])
+    .optional()
+    .describe("Select ecosystem to audit: auto, node, python, or both"),
+  python: z
+    .string()
+    .optional()
+    .describe("Override Python interpreter path for Python ecosystem audit"),
+  requirements: z
+    .array(z.string())
+    .optional()
+    .describe("Provide one or multiple requirements files"),
 });
 
 export type Options = {

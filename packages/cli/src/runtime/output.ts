@@ -100,7 +100,8 @@ export function printAuditOutput(
       `${ICONS.warning} ${result.notFound.size} ${pluralize(result.notFound.size, "package is", "packages are")} missing license information:`,
     );
 
-    for (const [packageName, notFoundResult] of result.notFound.entries()) {
+    for (const [packageKey, notFoundResult] of result.notFound.entries()) {
+      const packageName = notFoundResult.packageName ?? packageKey;
       if (verbose) {
         console.log(`${ICONS.item} ${packageName}: ${notFoundResult.errorMessage}`);
       } else {
@@ -114,7 +115,8 @@ export function printAuditOutput(
       `${ICONS.warning} ${pluralize(result.needsUserVerification.size, "package is", "packages are")} requiring manual checking:`,
     );
 
-    for (const [packageName, verificationResult] of result.needsUserVerification.entries()) {
+    for (const [packageKey, verificationResult] of result.needsUserVerification.entries()) {
+      const packageName = verificationResult.packageName ?? packageKey;
       if (verbose) {
         console.log(`${ICONS.item} ${verificationResult.verificationMessage}`);
       } else {
@@ -142,7 +144,8 @@ export function printAuditOutput(
       `${ICONS.error} ${pluralize(result.errorResults.size, "package returned error", "packages returned error")}:`,
     );
 
-    for (const [packageName, errorResult] of result.errorResults.entries()) {
+    for (const [packageKey, errorResult] of result.errorResults.entries()) {
+      const packageName = errorResult.packageName ?? packageKey;
       if (verbose) {
         console.log(`${ICONS.item} ${errorResult.errorMessage}`);
       } else {
@@ -277,14 +280,14 @@ function printVerboseView(
       : "No",
   }));
 
-  const notFoundRows = Array.from(result.notFound.entries()).map(
-    ([packageName]) => ({
-      status: "not found" as const,
-      packageName,
-      license: "-",
-      deprecated: "-",
-    }),
-  );
+    const notFoundRows = Array.from(result.notFound.entries()).map(
+      ([packageKey, value]) => ({
+        status: "not found" as const,
+        packageName: value.packageName ?? packageKey,
+        license: "-",
+        deprecated: "-",
+      }),
+    );
 
   const combinedRows = [...rows, ...notFoundRows].filter((row) => {
     if (!filter) {

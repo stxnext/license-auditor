@@ -1,6 +1,6 @@
 import { confirm, isCancel, spinner } from "@clack/prompts";
 import { auditLicenses } from "@brainhubeu/license-auditor-core";
-import { LicenseStatusSchema } from "@license-auditor/data";
+import { LicenseStatusSchema, type Ecosystem } from "@license-auditor/data";
 import { readDefaultConfig } from "../utils/read-default-config.js";
 import { readConfiguration } from "../utils/read-configuration.js";
 import { saveResultToJson } from "../utils/save-result-to-json.js";
@@ -17,6 +17,9 @@ export type RawCliOptions = {
   defaultConfig?: boolean;
   filterRegex?: string;
   bail?: number;
+  ecosystem?: string;
+  python?: string;
+  requirements?: string[];
 };
 
 export async function runAuditCommand({
@@ -26,6 +29,8 @@ export async function runAuditCommand({
   rootDir: string;
   options: RawCliOptions;
 }) {
+  const ecosystem = parseEcosystemOption(options.ecosystem);
+
   const filterResult = options.filter
     ? LicenseStatusSchema.safeParse(options.filter)
     : undefined;
@@ -52,6 +57,9 @@ export async function runAuditCommand({
     production: options.production,
     filterRegex: options.filterRegex,
     verbose: options.verbose,
+    ecosystem,
+    python: options.python,
+    requirements: options.requirements,
   });
 
   auditSpinner.stop("Finished processing licenses.");
@@ -71,6 +79,25 @@ export async function runAuditCommand({
     warning: result.warning,
     overrides: config.overrides,
   });
+}
+
+function parseEcosystemOption(value: string | undefined): Ecosystem | undefined {
+  if (!value) {
+    return undefined;
+  }
+
+  if (
+    value === "auto" ||
+    value === "node" ||
+    value === "python" ||
+    value === "both"
+  ) {
+    return value;
+  }
+
+  throw new Error(
+    `Invalid ecosystem value: ${value}. Expected one of: auto, node, python, both`,
+  );
 }
 
 async function loadConfig({

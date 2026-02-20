@@ -1,6 +1,7 @@
 import { auditLicenses } from "@brainhubeu/license-auditor-core";
 import type {
   ConfigType,
+  Ecosystem,
   LicenseAuditResult,
   LicenseStatus,
 } from "@license-auditor/data";
@@ -20,6 +21,9 @@ export type AuditLicensesProps = {
     filterRegex?: string | undefined;
     bail?: number | undefined;
     production: boolean | undefined;
+    ecosystem?: Ecosystem | undefined;
+    python?: string | undefined;
+    requirements?: string[] | undefined;
   };
   config: ConfigType;
   json: string | undefined;
@@ -28,7 +32,16 @@ export type AuditLicensesProps = {
 export default function AuditLicenses({
   config,
   json,
-  flags: { verbose, filter, production, filterRegex, bail },
+  flags: {
+    verbose,
+    filter,
+    production,
+    filterRegex,
+    bail,
+    ecosystem,
+    python,
+    requirements,
+  },
 }: AuditLicensesProps) {
   const [working, setWorking] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -52,6 +65,9 @@ export default function AuditLicenses({
           production,
           filterRegex,
           verbose,
+          ecosystem,
+          python,
+          requirements,
         });
         setResult(result);
         if (warning) {
@@ -68,7 +84,7 @@ export default function AuditLicenses({
       }
     };
     void getResults();
-  }, [exit, config, production, filterRegex, verbose]);
+  }, [exit, config, production, filterRegex, verbose, ecosystem, python, requirements]);
 
   useEffect(() => {
     if (result && json) {

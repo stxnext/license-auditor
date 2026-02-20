@@ -38,6 +38,20 @@ program
     "Flag controls process exit status if blacklisted license count exceeds the provided threshold.",
     parseIntegerOption,
   )
+  .option(
+    "--ecosystem <ecosystem>",
+    "Select ecosystem to audit: auto, node, python, or both",
+  )
+  .option(
+    "--python <path>",
+    "Override Python interpreter path for Python ecosystem audit",
+  )
+  .option(
+    "--requirements <path>",
+    "Provide requirements file path. Repeat flag to pass multiple files.",
+    collectListOption,
+    [],
+  )
   .action(async (options) => {
     await runAuditCommand({
       rootDir: resolveRootDirectory(),
@@ -76,4 +90,11 @@ function parseIntegerOption(value: string): number {
   }
 
   return parsed;
+}
+
+function collectListOption(
+  value: string,
+  previous: string[] | undefined,
+): string[] {
+  return [...(previous ?? []), value];
 }

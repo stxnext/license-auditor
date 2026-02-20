@@ -1,4 +1,5 @@
 const config = {
+  ecosystem: "auto",
   blacklist: [],
   whitelist: [],
   overrides: {},
