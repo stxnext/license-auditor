@@ -26,6 +26,9 @@
     "test:unit": "turbo run test:unit",
     "test:upload-coverage": "cat packages/core/coverage/lcov.info | codecov",
     "test:e2e": "turbo run test:e2e",
+    "smoke:desktop:podman": "bash ./scripts/smoke/podman-desktop-binary-smoke.sh",
+    "smoke:linux:podman": "bash ./scripts/smoke/podman-linux-binary-smoke.sh",
+    "smoke:python:podman": "bash ./scripts/smoke/podman-python-smoke.sh",
     "release:experimental": "bash ./scripts/release-experimental-3.sh",
     "release:stable": "bash ./scripts/release-stable-3.sh"
   },

@@ -217,6 +217,62 @@ Artifacts are written to:
 
 `.tmp/podman-python-smoke`
 
+## Linux binary smoke test (Podman)
+
+To validate Linux standalone binaries in a real Linux container, run:
+
+```bash
+npm run smoke:linux:podman
+```
+
+This smoke test:
+
+- builds baseline Linux binary for your target architecture,
+- optionally builds UPX-runtime Linux binary,
+- scaffolds a fresh React project in Linux container,
+- runs both binaries and verifies equal JSON output.
+
+Useful options:
+
+```bash
+PODMAN_SMOKE_PLATFORM=linux/amd64 npm run smoke:linux:podman
+SMOKE_LINUX_COMPARE_UPX=false npm run smoke:linux:podman
+SMOKE_LINUX_BUILD_BINARIES=false npm run smoke:linux:podman
+```
+
+Artifacts are written to:
+
+`.tmp/podman-linux-binary-smoke`
+
+## Desktop binary smoke test (macOS + Windows)
+
+To validate desktop binaries, run:
+
+```bash
+npm run smoke:desktop:podman
+```
+
+This smoke test:
+
+- runs macOS binary smoke locally on the host machine,
+- can run Windows binary smoke in Linux container via `wine` (not a native Windows container),
+- scaffolds fresh React projects and checks CLI exit status + output artifacts.
+
+Note: native macOS/Windows containers are not available here. Windows smoke via `wine` is best-effort and disabled by default.
+
+Useful options:
+
+```bash
+SMOKE_RUN_WINDOWS=true npm run smoke:desktop:podman
+SMOKE_RUN_MACOS=false npm run smoke:desktop:podman
+SMOKE_DESKTOP_BUILD_BINARIES=false npm run smoke:desktop:podman
+PODMAN_WINDOWS_PLATFORM=linux/amd64 npm run smoke:desktop:podman
+```
+
+Artifacts are written to:
+
+`.tmp/podman-desktop-binary-smoke`
+
 ## CI integration
 
 You can add License Auditor to your CI pipeline to ensure that the project's dependencies comply with the license policy. To do so, add the following command to your CI configuration:
