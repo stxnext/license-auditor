@@ -53,6 +53,20 @@ jobs:
       - name: Run audit
         run: bunx @brainhubeu/lac --default-config --strict
 
+  python-smoke-podman:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Install Podman
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y podman
+
+      - name: Run Python smoke test in Podman
+        run: bash ./scripts/smoke/podman-python-smoke.sh
+
   test:
     runs-on: ubuntu-latest
     needs: format-and-lint
