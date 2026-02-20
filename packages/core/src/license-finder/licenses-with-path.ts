@@ -8,16 +8,12 @@ export type LicensesWithPathAndStatus = Pick<
   DetectedLicense,
   "licensePath" | "verificationStatus"
 > &
-  ResolvedLicenses;
+  ResolvedLicenses & {
+    manualVerificationMessage?: string | undefined;
+  };
 
-export type ResolvedLicenses =
-  | {
-      licenses: LicenseWithSource[];
-      licenseExpression?: undefined;
-      licenseExpressionParsed?: undefined;
-    }
-  | {
-      licenses: LicenseWithSource[];
-      licenseExpression: string;
-      licenseExpressionParsed: Info;
-    };
+export type ResolvedLicenses = {
+  licenses: LicenseWithSource[];
+  licenseExpression?: string | undefined;
+  licenseExpressionParsed?: Info | undefined;
+};
