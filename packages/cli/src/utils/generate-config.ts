@@ -1,8 +1,9 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { GenerateConfigException } from "@brainhubeu/license-auditor-core";
+import type { ConfigType } from "@license-auditor/data";
 import { ConfigExtension } from "../constants/config-constants.js";
+import { getTemplateConfig } from "./config-template-data.js";
 
 export enum ConfigListType {
   Default = "default",
@@ -10,26 +11,46 @@ export enum ConfigListType {
   Strict = "strict",
 }
 
-async function copyConfigFile(
-  currentDir: string,
-  configListType: ConfigListType,
-  extension: ConfigExtension,
-) {
-  await fs.mkdir(currentDir, { recursive: true });
+export function getConfigFileName(extension: ConfigExtension): string {
+  return extension === ConfigExtension.JSON
+    ? ".license-auditorrc.json"
+    : `license-auditor.config${extension}`;
+}
 
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname = path.dirname(__filename);
+function renderConfig(config: ConfigType, extension: ConfigExtension): string {
+  const serialized = JSON.stringify(config, null, 2);
 
-  const templateDir = path.resolve(__dirname, `template/${configListType}`);
+  switch (extension) {
+    case ConfigExtension.JSON:
+      return `${serialized}\n`;
+    case ConfigExtension.MJS:
+    case ConfigExtension.JS:
+      return `export default ${serialized};\n`;
+    case ConfigExtension.TS:
+      return [
+        'import type { ConfigType } from "@brainhubeu/lac";',
+        "",
+        `const config: ConfigType = ${serialized};`,
+        "",
+        "export default config;",
+        "",
+      ].join("\n");
+    default:
+      return `${serialized}\n`;
+  }
+}
 
-  const templateFileName =
-    extension === ConfigExtension.JSON
-      ? ".license-auditorrc.json"
-      : `license-auditor.config${extension}`;
-  const templatePath = path.join(templateDir, templateFileName);
-
-  const destinationPath = path.join(currentDir, templateFileName);
-  await fs.copyFile(templatePath, destinationPath);
+function getTemplateConfigForList(configListType: ConfigListType): ConfigType {
+  switch (configListType) {
+    case ConfigListType.Default:
+      return getTemplateConfig("default");
+    case ConfigListType.Strict:
+      return getTemplateConfig("strict");
+    case ConfigListType.Blank:
+      return getTemplateConfig("blank");
+    default:
+      return getTemplateConfig("default");
+  }
 }
 
 export async function generateConfig(
@@ -38,9 +59,15 @@ export async function generateConfig(
   dir: string,
 ) {
   try {
-    await copyConfigFile(dir, configListType, extension);
+    await fs.mkdir(dir, { recursive: true });
 
-    return `Configured license-auditor with ${configListType} license whitelist and blacklist at: ${dir}/license-auditor.config${extension}`;
+    const config = getTemplateConfigForList(configListType);
+    const fileName = getConfigFileName(extension);
+    const destinationPath = path.join(dir, fileName);
+
+    await fs.writeFile(destinationPath, renderConfig(config, extension), "utf8");
+
+    return `Configured license-auditor with ${configListType} license whitelist and blacklist at: ${destinationPath}`;
   } catch (error) {
     throw new GenerateConfigException(
       "Failed to complete license configuration",

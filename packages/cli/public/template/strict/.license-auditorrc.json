@@ -1,5 +1,6 @@
 {
   "$schema": "../config-schema.json",
+  "ecosystem": "auto",
   "blacklist": [
     "AAL",
     "ADSL",

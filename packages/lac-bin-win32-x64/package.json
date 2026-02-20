@@ -1,0 +1,17 @@
+{
+  "name": "@brainhubeu/lac-bin-win32-x64",
+  "version": "3.0.0-experimental.0",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "os": [
+    "win32"
+  ],
+  "cpu": [
+    "x64"
+  ],
+  "files": [
+    "bin"
+  ]
+}

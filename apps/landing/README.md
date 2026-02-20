@@ -16,7 +16,7 @@ This is the landing page application for License Auditor, built with React, Type
 Before you begin, ensure you have the following installed:
 
 - Node.js (v18 or higher)
-- npm or yarn
+- Bun
 - Git
 
 ## Installation
@@ -25,7 +25,7 @@ Since this is part of a monorepo, you'll need to install dependencies from the r
 
 ```bash
 # From the root directory
-npm install
+bun install
 
 ```
 
@@ -39,17 +39,17 @@ turbo dev
 
 # Or from the apps/landing directory
 cd apps/landing
-npm run dev
+bun run dev
 ```
 
 The app will be available at http://localhost:5173
 
 ## Available Scripts
 
-- `npm run dev` - Start the development server
-- `npm run build` - Build the application for production
-- `npm run lint` - Run ESLint to check for code issues
-- `npm run preview` - Preview the production build locally
+- `bun run dev` - Start the development server
+- `bun run build` - Build the application for production
+- `bun run lint` - Run ESLint to check for code issues
+- `bun run preview` - Preview the production build locally
 
 ## Project Structure
 

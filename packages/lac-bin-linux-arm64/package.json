@@ -1,0 +1,17 @@
+{
+  "name": "@brainhubeu/lac-bin-linux-arm64",
+  "version": "3.0.0-experimental.0",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "os": [
+    "linux"
+  ],
+  "cpu": [
+    "arm64"
+  ],
+  "files": [
+    "bin"
+  ]
+}

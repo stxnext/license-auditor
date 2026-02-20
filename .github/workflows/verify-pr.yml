@@ -14,14 +14,19 @@ jobs:
         with:
           node-version: 20
 
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.9
+
       - name: Install dependencies
-        run: npm ci
+        run: bun install --frozen-lockfile
 
       - name: Run Biome
-        run: npx biome ci .
+        run: bunx biome ci .
 
       - name: Run typecheck
-        run: npm run typecheck
+        run: bun run typecheck
 
   license-audit:
     runs-on: ubuntu-latest
@@ -34,20 +39,33 @@ jobs:
         with:
           node-version: 20
 
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.9
+
       - name: Install dependencies
-        run: npm ci
+        run: bun install --frozen-lockfile
 
       - name: Build
-        run: npm run build
-
-      - name: Install lac
-        run: |
-          npm i -g node-gyp
-          npm i -g @brainhubeu/lac
+        run: bun run build
 
       - name: Run audit
-        #Add `--bail 1` flag when it will be available on npm
-        run: lac --default-config
+        run: bunx @brainhubeu/lac --default-config --strict
+
+  python-smoke-podman:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Install Podman
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y podman
+
+      - name: Run Python smoke test in Podman
+        run: bash ./scripts/smoke/podman-python-smoke.sh
 
   test:
     runs-on: ubuntu-latest
@@ -61,17 +79,22 @@ jobs:
         with:
           node-version: 20
 
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.9
+
       - name: Install dependencies
-        run: npm ci
+        run: bun install --frozen-lockfile
 
       - name: Build
-        run: npm run build
+        run: bun run build
 
       - name: Run tests and generate coverage
-        run: npm run test:coverage
+        run: bun run test:coverage
 
       - name: Run e2e tests
-        run: npm run test:e2e
+        run: bun run test:e2e
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4

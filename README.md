@@ -2,18 +2,25 @@
 
 ## Prerequisites
 
-### Node.js
+### Node.js and Bun
 
--   Node.js 20 or newer is required.
--   Node.js 20.x (LTS) is recommended for local development and CI consistency.
+-   Node.js 20 or newer is required for workspace tooling and CI.
+-   Bun 1.3.8 or newer is required to build local CLI binaries.
+-   Published `@brainhubeu/lac` installs with prebuilt platform binaries, so end users do not need Bun installed.
 
-### Supported package managers
+### Supported ecosystems
 
--   npm
--   yarn classic (v1)
--   yarn 2+
-    -   Applicable only for projects using `node_modules` installation. `Plug'n'Play` is not currently supported.
--   pnpm
+-   Node.js
+    -   npm
+    -   yarn classic (v1)
+    -   yarn 2+
+        -   Applicable only for projects using `node_modules` installation. `Plug'n'Play` is not currently supported.
+    -   pnpm
+    -   bun
+-   Python (experimental)
+    -   Installed environment (`.venv` or selected interpreter)
+    -   `uv.lock` (via `uv export`)
+    -   `requirements.txt` and `requirements/*.txt`
 
 ## Getting started
 
@@ -39,12 +46,16 @@ The results will be printed in the console.
 ## Available options
 
 -   `--verbose` - Verbose output (default: false)
+-   `--strict` - Treat dependency resolution warnings as failures (exit code 1)
 -   `--filter [filter]` - Filter verbose output by license status - whitelist, blacklist, or unknown
 -   `--json [json]` - Save the result to a JSON file. If no path is provided, a file named license-auditor.results.json will be created in the current directory.
 -   `--production` - Skip the audit for licenses in development dependencies (default: false)
 -   `--default-config` - Run audit with default whitelist/blacklist configuration
 -   `--filter-regex [regex]` - Run audit with a custom regex filter that will be applied to the package name
 -   `--bail [number]` - Flag controls program process's exit status, causing it to exit with status 1 if the number of blacklisted licenses exceeds the specified value; by default, it is set to Infinity, meaning the process exits with status 0 regardless of blacklisted licenses unless the flag is explicitly set.
+-   `--ecosystem [auto|node|python|both]` - Select ecosystem scope (default: `auto`)
+-   `--python [path]` - Override Python interpreter path for Python ecosystem audit
+-   `--requirements [path]` - Provide requirements file path (repeatable)
 
 > [!IMPORTANT]
 > Verify dev dependencies if they generate code, embed assets, or otherwise impact the final product, as their licenses might impose restrictions. Always prioritize reviewing both when in doubt or if your project may be redistributed or commercialized.
@@ -57,9 +68,23 @@ All licenses are sourced from [SPDX license list](https://spdx.org/licenses/)
 
 -   `whitelist` - array of SPDX license identifiers of licenses permitted within the project,
 -   `blacklist` - array of SPDX license identifiers of licenses prohibited within the project,
+-   `ecosystem` - optional ecosystem scope: `auto`, `node`, `python`, or `both`,
 -   `overrides` - an object with the specified severity:
 -   `warn` - package should be omitted from audit, but it will produce a warning,
 -   `off`- package should be completely omitted from the audit.
+
+### Python mode (experimental)
+
+-   Default `ecosystem: "auto"` detects Node and Python signals.
+-   If both ecosystems are detected in auto mode, audit fails and asks for explicit selection via config `ecosystem` or `--ecosystem`.
+-   Python metadata precedence:
+    1. `License-Expression`
+    2. `License`
+    3. `Classifier` entries (`License :: ...`)
+    4. License file scan
+-   `--production` for Python is best-effort:
+    -   precise behavior is available for `uv.lock` source (`uv export --no-dev`);
+    -   other sources emit a warning.
 
 To use `ConfigType` and enable IntelliSense license suggestions in the configuration file, run:
 
@@ -115,13 +140,33 @@ type Output = {
   "whitelist": Package[],
   "blacklist": Package[],
   "unknown": Package[], 
-  "notFound": Package[]
+  "notFound": {
+    packageName: string,
+    packagePath: string,
+    errorMessage: string,
+    ecosystem?: 'node' | 'python',
+  }[],
+  "needsUserVerification": {
+    packageName: string,
+    packagePath: string,
+    verificationMessage: string,
+    ecosystem?: 'node' | 'python',
+  }[],
+  "errorResults": {
+    packageName: string,
+    packagePath: string,
+    errorMessage: string,
+    ecosystem?: 'node' | 'python',
+  }[]
 }
 
 type Package = {
   packageName: string,
   packagePath: string,
   status: 'whitelist' | 'blacklist' | 'unknown',
+  ecosystem?: 'node' | 'python',
+  dependencySource?: 'node_modules' | 'python-environment' | 'uv-lock' | 'requirements',
+  metadataSource?: 'local-metadata' | 'pypi-json-api' | 'license-file',
   licensePath: string[], // paths to all license sources: license files and package.json files
   verificationStatus: 
     'ok'
@@ -141,8 +186,92 @@ type License = {
     | 'package.json-legacy' // license found in package.json in "license" field but in outdated format (e.g. object)
     | 'license-file-content' // license detected in license file content
     | 'license-file-content-keywords' // license detected in license file content using keywords (e.g. "MIT" or "Apache-2.0")
+    | 'python-metadata-license-expression' // SPDX expression from Python metadata
+    | 'python-metadata-license-field' // "License" field from Python metadata
+    | 'python-metadata-classifier' // license inferred directly from classifier parts
+    | 'python-metadata-classifier-mapped' // license inferred via curated classifier mapping
+    | 'python-pypi-metadata' // license inferred from PyPI JSON metadata
 };
 ```
+
+## Python smoke test (Podman)
+
+To validate Python ecosystem behavior in a real Linux environment, run:
+
+```bash
+npm run smoke:python:podman
+```
+
+Optional environment variables:
+
+- `PODMAN_SMOKE_IMAGE` - container image to use (default: `docker.io/library/node:20-bookworm`)
+- `PODMAN_SMOKE_PLATFORM` - override platform passed to Podman (for example `linux/arm64`)
+
+This runs a containerized smoke suite that scaffolds and audits:
+
+- a `.venv`-based project,
+- a `uv.lock` project,
+- a `requirements.txt` project (including unsupported spec handling).
+
+Artifacts are written to:
+
+`.tmp/podman-python-smoke`
+
+## Linux binary smoke test (Podman)
+
+To validate Linux standalone binaries in a real Linux container, run:
+
+```bash
+npm run smoke:linux:podman
+```
+
+This smoke test:
+
+- builds baseline Linux binary for your target architecture,
+- optionally builds UPX-runtime Linux binary,
+- scaffolds a fresh React project in Linux container,
+- runs both binaries and verifies equal JSON output.
+
+Useful options:
+
+```bash
+PODMAN_SMOKE_PLATFORM=linux/amd64 npm run smoke:linux:podman
+SMOKE_LINUX_COMPARE_UPX=false npm run smoke:linux:podman
+SMOKE_LINUX_BUILD_BINARIES=false npm run smoke:linux:podman
+```
+
+Artifacts are written to:
+
+`.tmp/podman-linux-binary-smoke`
+
+## Desktop binary smoke test (macOS + Windows)
+
+To validate desktop binaries, run:
+
+```bash
+npm run smoke:desktop:podman
+```
+
+This smoke test:
+
+- runs macOS binary smoke locally on the host machine,
+- can run Windows binary smoke in Linux container via `wine` (not a native Windows container),
+- scaffolds fresh React projects and checks CLI exit status + output artifacts.
+
+Note: native macOS/Windows containers are not available here. Windows smoke via `wine` is best-effort and disabled by default.
+
+Useful options:
+
+```bash
+SMOKE_RUN_WINDOWS=true npm run smoke:desktop:podman
+SMOKE_RUN_MACOS=false npm run smoke:desktop:podman
+SMOKE_DESKTOP_BUILD_BINARIES=false npm run smoke:desktop:podman
+PODMAN_WINDOWS_PLATFORM=linux/amd64 npm run smoke:desktop:podman
+```
+
+Artifacts are written to:
+
+`.tmp/podman-desktop-binary-smoke`
 
 ## CI integration
 
@@ -160,22 +289,134 @@ You can add License Auditor to your CI pipeline to ensure that the project's dep
         with:
           node-version: 20
 
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.9
+
       - name: Install dependencies
-        run: npm ci
+        run: bun install --frozen-lockfile
 
       - name: Build
-        run: npm run build
+        run: bun run build
 
       ### This part below should be added to your CI configuration file. ###
 
-      - name: Install lac
-        run: |  
-          npm i -g node-gyp
-          npm i -g @brainhubeu/lac
-
       - name: Run audit
-        run: lac --default-config --bail 1
+        run: bunx @brainhubeu/lac --default-config --strict --bail 1
 ```
+
+## Stable 3.x release process
+
+Stable release is automated from GitHub Releases after this branch is merged to default branch.
+
+### One-click stable release from GitHub
+
+1. Push/merge release-ready commits to default branch.
+2. Create GitHub Release with a stable tag like `v3.0.0` (not prerelease).
+3. Workflow `.github/workflows/release-stable-3.yml` runs automatically and:
+   - sets package versions to `3.0.0`,
+   - builds and syncs binaries into platform packages,
+   - publishes `@brainhubeu/lac-bin-*` packages first,
+   - publishes `@brainhubeu/lac` as `latest`.
+
+### Stable workflow notes
+
+- Trigger: `release.published` (for non-prerelease releases).
+- Manual fallback: `workflow_dispatch` on `.github/workflows/release-stable-3.yml`.
+- Optional Linux-only UPX optimization:
+  - `workflow_dispatch` input: `linux_upx_runtime=true`
+  - `release.published` path: set repository variable `LINUX_UPX_RUNTIME=true`
+- Required secret: `NPM_TOKEN` with publish access to:
+  - `@brainhubeu/lac`
+  - `@brainhubeu/lac-bin-*`
+
+### Local stable script (manual fallback)
+
+```bash
+export NODE_AUTH_TOKEN=your_publish_capable_npm_token
+bun run release:stable -- --version 3.0.0 --dry-run
+bun run release:stable -- --version 3.0.0
+```
+
+Optional Linux-only UPX optimization:
+
+```bash
+USE_LINUX_UPX_RUNTIME=true bun run release:stable -- --version 3.0.0 --dry-run
+USE_LINUX_UPX_RUNTIME=true bun run release:stable -- --version 3.0.0
+```
+
+## Experimental 3.0 release process
+
+The experimental `3.0` release uses npm registry distribution with embedded platform binaries and a prerelease version (for example `3.0.0-experimental.0`).
+
+### Required secrets and access
+
+- GitHub Actions secret `NPM_TOKEN` with publish access to:
+  - `@brainhubeu/lac`
+  - `@brainhubeu/lac-bin-*`
+- Package versions must be bumped before running publish (the registry rejects already published versions).
+
+### Publish order
+
+1. Build all CLI binaries.
+2. Sync binaries into platform packages.
+3. Publish platform packages:
+   - `@brainhubeu/lac-bin-darwin-arm64`
+   - `@brainhubeu/lac-bin-darwin-x64`
+   - `@brainhubeu/lac-bin-linux-arm64`
+   - `@brainhubeu/lac-bin-linux-x64`
+   - `@brainhubeu/lac-bin-win32-arm64`
+   - `@brainhubeu/lac-bin-win32-x64`
+4. Publish `@brainhubeu/lac` (root CLI package with `optionalDependencies` on platform packages).
+
+Note: with current Bun `1.3.x`, `win32-arm64` binary compilation is unavailable in this flow, so `@brainhubeu/lac-bin-win32-arm64` is populated with the `win32-x64` executable.
+
+### Local release script
+
+Use a single script for auth check, dry-run, and publish:
+
+```bash
+export NODE_AUTH_TOKEN=your_publish_capable_npm_token
+bun run release:experimental -- --check-auth
+bun run release:experimental -- --experimental-number 1 --dry-run
+bun run release:experimental -- --experimental-number 1
+```
+
+Optional custom tag:
+
+```bash
+bun run release:experimental -- --tag experimental
+```
+
+Optional Linux-only UPX optimization:
+
+```bash
+USE_LINUX_UPX_RUNTIME=true bun run release:experimental -- --experimental-number 1 --dry-run
+USE_LINUX_UPX_RUNTIME=true bun run release:experimental -- --experimental-number 1
+```
+
+Notes:
+- `NODE_AUTH_TOKEN` is required for `--check-auth` and real publish mode.
+- `--dry-run` does not require `NODE_AUTH_TOKEN`.
+- `--experimental-number <n>` targets `3.0.0-experimental.<n>` based on current base version.
+- Script blocks publishing when `<n>` is lower than current local experimental number.
+- Script skips packages already published at the same version, so you can safely re-run after a partial release.
+- `USE_LINUX_UPX_RUNTIME=true` compresses Bun runtime only for Linux binaries (darwin/windows stay standard).
+
+### GitHub Actions workflow
+
+Use `.github/workflows/release-experimental-3.yml`.
+
+- Trigger: manual (`workflow_dispatch`)
+- Inputs:
+  - `npm_tag` (default: `experimental`)
+  - `dry_run` (default: `true`)
+  - `linux_upx_runtime` (default: `false`)
+- Behavior:
+  - `dry_run=true`: builds binaries, validates package contents with `bun pm pack --dry-run`, does not publish.
+  - `dry_run=false`: publishes platform packages first, then publishes `@brainhubeu/lac`.
+  - Guardrail: publishing with `npm_tag=latest` is blocked for this workflow.
 
 ## Known issues
 

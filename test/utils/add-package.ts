@@ -29,6 +29,10 @@ type Details = {
   dependencies?: Record<string, string>;
 };
 
+type RootPackageJson = {
+  dependencies?: Record<string, string>;
+};
+
 const defaultPackageJson: Pick<Package, "main" | "scripts" | "private"> = {
   main: "index.js",
   scripts: { run: 'echo "Nope"' },
@@ -66,6 +70,23 @@ const addPackageDirectoryToNodeModules = async (
   }
 };
 
+const addPackageToProjectManifest = async (
+  testDirectory: string,
+  depName: string,
+  version: string,
+) => {
+  const packageJsonPath = path.resolve(testDirectory, "package.json");
+  const packageJsonRaw = await fs.readFile(packageJsonPath, "utf-8");
+  const packageJson = JSON.parse(packageJsonRaw) as RootPackageJson;
+
+  packageJson.dependencies = {
+    ...packageJson.dependencies,
+    [depName]: version,
+  };
+
+  await fs.writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2));
+};
+
 export const addPackage = async (
   testDirectory: string,
   depName: string,
@@ -78,4 +99,6 @@ export const addPackage = async (
     packageDetails,
     licenseFiles,
   );
+
+  await addPackageToProjectManifest(testDirectory, depName, packageDetails.version);
 };
