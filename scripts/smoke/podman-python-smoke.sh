@@ -34,6 +34,9 @@ podman run --rm \
     uv --version
 
     bun install --frozen-lockfile >/tmp/bun-install-deps.log
+    # CLI source imports workspace packages that export from dist/, so build those first.
+    (cd /workspace/tooling/data && bun run build >/tmp/build-data.log)
+    (cd /workspace/packages/core && bun run build >/tmp/build-core.log)
 
     rm -rf \"${smoke_root}\"
     mkdir -p \"${smoke_root}\"

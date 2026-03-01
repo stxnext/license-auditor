@@ -33,33 +33,7 @@ export async function fetchPypiProjectMetadata({
         chunks.push(chunk);
       });
       response.on("end", () => {
-        try {
-          const parsed = JSON.parse(chunks.join("")) as {
-            info?: {
-              name?: string;
-              version?: string;
-              license?: string;
-              license_expression?: string;
-              classifiers?: string[];
-            };
-          };
-
-          const info = parsed.info;
-          if (!info?.name || !info.version) {
-            resolve(null);
-            return;
-          }
-
-          resolve({
-            name: info.name,
-            version: info.version,
-            license: info.license,
-            licenseExpression: info.license_expression,
-            classifiers: Array.isArray(info.classifiers) ? info.classifiers : [],
-          });
-        } catch {
-          resolve(null);
-        }
+        resolve(parsePypiMetadataResponse(chunks));
       });
     });
 
@@ -72,4 +46,51 @@ export async function fetchPypiProjectMetadata({
       resolve(null);
     });
   });
+}
+
+function parsePypiMetadataResponse(
+  chunks: string[],
+): PypiProjectMetadata | null {
+  try {
+    const parsed = JSON.parse(chunks.join("")) as {
+      info?: Record<string, unknown>;
+    };
+
+    const info = parsed.info;
+    if (!(info && typeof info === "object")) {
+      return null;
+    }
+
+    const resolvedName =
+      typeof info["name"] === "string" ? info["name"] : undefined;
+    const resolvedVersion =
+      typeof info["version"] === "string" ? info["version"] : undefined;
+
+    if (!(resolvedName && resolvedVersion)) {
+      return null;
+    }
+
+    const license =
+      typeof info["license"] === "string" ? info["license"] : undefined;
+    const licenseExpression =
+      typeof info["license_expression"] === "string"
+        ? info["license_expression"]
+        : undefined;
+    const classifiers = info["classifiers"];
+
+    return {
+      name: resolvedName,
+      version: resolvedVersion,
+      license,
+      licenseExpression,
+      classifiers: Array.isArray(classifiers)
+        ? classifiers.filter(
+            (classifier): classifier is string =>
+              typeof classifier === "string",
+          )
+        : [],
+    };
+  } catch {
+    return null;
+  }
 }

@@ -51,7 +51,7 @@ jobs:
         run: bun run build
 
       - name: Run audit
-        run: bunx @brainhubeu/lac --default-config --strict
+        run: bunx @brainhubeu/lac --default-config --strict --production
 
   python-smoke-podman:
     runs-on: ubuntu-latest
