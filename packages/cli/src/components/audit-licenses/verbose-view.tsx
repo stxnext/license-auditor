@@ -77,9 +77,9 @@ export default function VerboseView({ result, filter }: VerboseViewProps) {
     }));
 
     const notFoundEntries = Array.from(result.notFound.entries()).map(
-      ([packageName]) => ({
+      ([packageKey, value]) => ({
         status: "not found" as const,
-        packageName,
+        packageName: value.packageName ?? packageKey,
         license: "-",
         deprecated: "-",
       }),

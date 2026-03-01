@@ -11,10 +11,23 @@ import type { PackageLicensesWithPath } from "./get-all-licenses.js";
 import { parseVerificationStatusToMessage } from "./parse-verification-status-to-message.js";
 import { resolveLicenseStatus } from "./resolve-license-status.js";
 
-type NotFoundMap = Map<string, { packagePath: string; errorMessage: string }>;
+type NotFoundMap = Map<
+  string,
+  {
+    packageName?: string;
+    packagePath: string;
+    errorMessage: string;
+    ecosystem?: DetectedLicense["ecosystem"];
+  }
+>;
 type NeedsUserVerificationMap = Map<
   string,
-  { packagePath: string; verificationMessage: string }
+  {
+    packageName?: string;
+    packagePath: string;
+    verificationMessage: string;
+    ecosystem?: DetectedLicense["ecosystem"];
+  }
 >;
 type GroupedByStatus = Record<LicenseStatus, DetectedLicense[]>;
 
@@ -40,16 +53,37 @@ export async function mapLicensesToStatus(
     licensesWithPath,
     packageName,
     packagePath,
+    ecosystem,
+    dependencySource,
+    metadataSource,
   } of packageLicensesWithPath.values()) {
-    const { licenses, licensePath, licenseExpression, verificationStatus } =
-      licensesWithPath;
+    const {
+      licenses,
+      licensePath,
+      licenseExpression,
+      verificationStatus,
+      manualVerificationMessage,
+    } = licensesWithPath;
+    const mapKey = buildResultMapKey(packageName, ecosystem);
+
+    if (manualVerificationMessage) {
+      needsUserVerification.set(mapKey, {
+        packageName,
+        packagePath,
+        verificationMessage: manualVerificationMessage,
+        ecosystem,
+      });
+      continue;
+    }
 
     const hasPackageLicense = licenses.length > 0;
 
     if (!hasPackageLicense) {
-      notFound.set(packageName, {
+      notFound.set(mapKey, {
+        packageName,
         packagePath,
         errorMessage: `License not found in package.json and in license file in ${packagePath}`,
+        ecosystem,
       });
       continue;
     }
@@ -58,13 +92,15 @@ export async function mapLicensesToStatus(
       verificationStatus === "licenseFilesExistButSomeAreUncertain" ||
       verificationStatus === "licenseFileExistsButUnknownLicense"
     ) {
-      needsUserVerification.set(packageName, {
+      needsUserVerification.set(mapKey, {
+        packageName,
         packagePath,
         verificationMessage: parseVerificationStatusToMessage(
           verificationStatus,
           packageName,
           packagePath,
         ),
+        ecosystem,
       });
       continue;
     }
@@ -73,13 +109,15 @@ export async function mapLicensesToStatus(
       someButNotAllLicensesWhitelisted(licenses, config);
 
     if (areSomeButNotAllLicensesWhitelisted) {
-      needsUserVerification.set(packageName, {
+      needsUserVerification.set(mapKey, {
+        packageName,
         packagePath,
         verificationMessage: parseVerificationStatusToMessage(
           "someButNotAllLicensesWhitelisted",
           packageName,
           packagePath,
         ),
+        ecosystem,
       });
 
       // we don't "continue" here because we want this package to appear in the blacklisted results
@@ -95,6 +133,9 @@ export async function mapLicensesToStatus(
       licenseExpression: licenseExpression,
       licensePath: licensePath,
       verificationStatus: verificationStatus,
+      ecosystem,
+      dependencySource,
+      metadataSource,
     };
 
     groupedByStatus[statusOfAllLicenses].push(detectedLicense);
@@ -105,6 +146,17 @@ export async function mapLicensesToStatus(
     notFound,
     needsUserVerification,
   };
+}
+
+function buildResultMapKey(
+  packageName: string,
+  ecosystem: DetectedLicense["ecosystem"],
+): string {
+  if (!ecosystem) {
+    return packageName;
+  }
+
+  return `${ecosystem}:${packageName}`;
 }
 
 const someButNotAllLicensesWhitelisted = (

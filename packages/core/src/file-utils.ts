@@ -81,7 +81,7 @@ export function extractPackageNameFromPath(packagePath: string): string {
   const baseName = path.basename(packagePath);
   const parentName = path.basename(path.dirname(packagePath));
 
-  if (parentName.startsWith("@")) {
+  if (parentName.startsWith("@") || parentName.includes("@")) {
     return `${parentName}/${baseName}`;
   }
   return baseName;

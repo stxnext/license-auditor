@@ -1,6 +1,7 @@
 {
   "$schema": "../config-schema.json",
-  "blacklist": [""],
+  "ecosystem": "auto",
+  "blacklist": [],
   "whitelist": [],
   "overrides": {}
 }

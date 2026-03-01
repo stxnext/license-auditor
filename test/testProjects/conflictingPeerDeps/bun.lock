@@ -1,0 +1,29 @@
+{
+  "lockfileVersion": 1,
+  "configVersion": 0,
+  "workspaces": {
+    "": {
+      "name": "conflicting-legacy-peer-deps",
+      "dependencies": {
+        "@tanstack/react-query": "^5.55.4",
+        "@tanstack/react-query-devtools": "^5.56.2",
+        "react": "^18.3.1",
+      },
+    },
+  },
+  "packages": {
+    "@tanstack/query-core": ["@tanstack/query-core@5.55.4", "", {}, "sha512-uoRqNnRfzOH4OMIoxj8E2+Us89UIGXfau981qYJWsNMkFS1GXR4UIyzUTVGq4N7SDLHgFPpo6IOazqUV5gkMZA=="],
+
+    "@tanstack/query-devtools": ["@tanstack/query-devtools@5.56.1", "", {}, "sha512-xnp9jq/9dHfSCDmmf+A5DjbIjYqbnnUL2ToqlaaviUQGRTapXQ8J+GxusYUu1IG0vZMaWdiVUA4HRGGZYAUU+A=="],
+
+    "@tanstack/react-query": ["@tanstack/react-query@5.55.4", "", { "dependencies": { "@tanstack/query-core": "5.55.4" }, "peerDependencies": { "react": "^18 || ^19" } }, "sha512-e3uX5XkLD9oTV66/VsVpkYz3Ds/ps/Yk+V5d89xthAbtNIKKBEm4FdNb9yISFzGEGezUzVO68qmfmiSrtScvsg=="],
+
+    "@tanstack/react-query-devtools": ["@tanstack/react-query-devtools@5.56.2", "", { "dependencies": { "@tanstack/query-devtools": "5.56.1" }, "peerDependencies": { "@tanstack/react-query": "^5.56.2", "react": "^18 || ^19" } }, "sha512-7nINJtRZZVwhTTyDdMIcSaXo+EHMLYJu1S2e6FskvvD5prx87LlAXXWZDfU24Qm4HjshEtM5lS3HIOszNGblcw=="],
+
+    "js-tokens": ["js-tokens@4.0.0", "", {}, "sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ=="],
+
+    "loose-envify": ["loose-envify@1.4.0", "", { "dependencies": { "js-tokens": "^3.0.0 || ^4.0.0" }, "bin": "cli.js" }, "sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q=="],
+
+    "react": ["react@18.3.1", "", { "dependencies": { "loose-envify": "^1.1.0" } }, "sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ=="],
+  }
+}

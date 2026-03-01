@@ -1,4 +1,5 @@
 const config = {
+  ecosystem: "auto",
   blacklist: [
     "AGPL-1.0-only",
     "AGPL-1.0-or-later",

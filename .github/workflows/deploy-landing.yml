@@ -26,11 +26,16 @@ jobs:
         with:
           node-version: 20
 
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.9
+
       - name: Install dependencies
-        run: npm ci
+        run: bun install --frozen-lockfile
 
       - name: Build landing app
-        run: npm run build --workspace=apps/landing
+        run: bun --cwd ./apps/landing run build
         env:
           GITHUB_PAGES: true
 

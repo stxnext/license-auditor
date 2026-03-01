@@ -102,8 +102,8 @@ export default function AuditResult({
         <ResultsList
           message={["package returned error", "packages returned error"]}
           results={[...result.errorResults.entries()].map(
-            ([packageName, { errorMessage }]) => ({
-              packageName,
+            ([packageKey, { packageName, errorMessage }]) => ({
+              packageName: packageName ?? packageKey,
               message: errorMessage,
               licenses: [],
             }),

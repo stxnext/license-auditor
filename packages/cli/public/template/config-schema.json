@@ -690,10 +690,15 @@
             "$ref": "#/definitions/ConfigSchema/properties/blacklist/items"
           }
         },
+        "ecosystem": {
+          "type": "string",
+          "enum": ["auto", "node", "python", "both"]
+        },
         "overrides": {
           "type": "object",
           "additionalProperties": {
-            "$ref": "#/definitions/ConfigSchema/properties/blacklist/items"
+            "type": "string",
+            "enum": ["warn", "off"]
           }
         }
       },

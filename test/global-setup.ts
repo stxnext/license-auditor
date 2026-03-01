@@ -23,6 +23,18 @@ const exists = async (path: string) => {
 };
 
 const getInstallCommand = async (projectDirectory: string) => {
+  const packageJsonPath = path.resolve(projectDirectory, "package.json");
+  const packageJsonRaw = await fs.readFile(packageJsonPath, "utf8");
+  const packageJson = JSON.parse(packageJsonRaw) as { packageManager?: string };
+
+  if (
+    packageJson.packageManager?.startsWith("bun@") ||
+    (await exists(path.resolve(projectDirectory, "bun.lock"))) ||
+    (await exists(path.resolve(projectDirectory, "bun.lockb")))
+  ) {
+    return "bun install";
+  }
+
   if (await exists(path.resolve(projectDirectory, "pnpm-lock.yaml"))) {
     const pnpmLocalPath = path.resolve(
       __dirname,
@@ -46,7 +58,7 @@ const getInstallCommand = async (projectDirectory: string) => {
 
     return `${yarnLocalPath} install`;
   }
-  return "npm i";
+  return "bun install";
 };
 
 const prepareTestProject = async (projectDirectory: string) => {

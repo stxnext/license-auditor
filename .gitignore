@@ -22,6 +22,8 @@ coverage
 out/
 build
 dist
+dist-binary
+*.bun-build
 tsconfig.tsbuildinfo
 
 # Debug
@@ -32,3 +34,5 @@ yarn-error.log*
 # Misc
 .DS_Store
 *.pem
+
+.tmp

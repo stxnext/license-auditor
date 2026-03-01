@@ -1,7 +1,7 @@
 {
   "extends": "@license-auditor/typescript-config/base.json",
-  "include": ["**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules", "./dist", "tsup.config.ts"],
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "./dist"],
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",

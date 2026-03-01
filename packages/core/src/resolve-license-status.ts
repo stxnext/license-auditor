@@ -10,7 +10,7 @@ export function resolveLicenseStatus(
   const { licenses, licenseExpression, licenseExpressionParsed } =
     licensesWithPath;
 
-  if (licenseExpression) {
+  if (licenseExpression && licenseExpressionParsed) {
     return evaluateLicenseExpression(licenseExpressionParsed, config);
   }
 

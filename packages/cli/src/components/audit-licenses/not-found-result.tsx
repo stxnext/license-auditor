@@ -24,16 +24,16 @@ export default function NotFoundResult({
       </Box>
       <Box flexDirection="column" marginLeft={2}>
         {Array.from(notFound).map(
-          ([packageName, { packagePath, errorMessage }]) => (
+          ([packageKey, { packageName, packagePath, errorMessage }]) => (
             <Box key={packagePath} marginBottom={verbose ? 1 : 0}>
               <Text color="gray">{figures.pointerSmall}</Text>
               {verbose ? (
                 <Text>
                   {" "}
-                  {packageName}: {errorMessage}
+                  {packageName ?? packageKey}: {errorMessage}
                 </Text>
               ) : (
-                <Text> {packageName} </Text>
+                <Text> {packageName ?? packageKey} </Text>
               )}
             </Box>
           ),

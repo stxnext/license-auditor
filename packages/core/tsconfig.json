@@ -1,11 +1,10 @@
 {
   "extends": "@license-auditor/typescript-config/base.json",
-  "include": ["**/*.ts"],
-  "exclude": ["node_modules", "./dist", "tsup.config.ts", "vitest.config.ts"],
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "./dist", "vitest.config.ts"],
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
-    "baseUrl": ".",
     "declarationDir": "./dist/types",
     "composite": false
   }

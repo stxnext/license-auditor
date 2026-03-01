@@ -26,13 +26,13 @@ export default function NeedsUserVerificationResult({
       </Box>
       <Box flexDirection="column" marginLeft={2}>
         {Array.from(needsUserVerification).map(
-          ([packageName, { verificationMessage }]) => (
-            <Box key={packageName} marginBottom={verbose ? 1 : 0}>
+          ([packageKey, { packageName, verificationMessage }]) => (
+            <Box key={packageKey} marginBottom={verbose ? 1 : 0}>
               <Text color="gray">{figures.pointerSmall}</Text>
               {verbose ? (
                 <Text> {verificationMessage} </Text>
               ) : (
-                <Text> {packageName} </Text>
+                <Text> {packageName ?? packageKey} </Text>
               )}
             </Box>
           ),
