@@ -100,5 +100,9 @@ export const addPackage = async (
     licenseFiles,
   );
 
-  await addPackageToProjectManifest(testDirectory, depName, packageDetails.version);
+  await addPackageToProjectManifest(
+    testDirectory,
+    depName,
+    packageDetails.version,
+  );
 };

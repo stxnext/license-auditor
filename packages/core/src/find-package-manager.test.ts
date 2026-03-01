@@ -8,7 +8,9 @@ const tmpDirs: string[] = [];
 
 afterEach(async () => {
   await Promise.all(
-    tmpDirs.map((directory) => fs.rm(directory, { recursive: true, force: true })),
+    tmpDirs.map((directory) =>
+      fs.rm(directory, { recursive: true, force: true }),
+    ),
   );
   tmpDirs.length = 0;
 });
@@ -40,7 +42,7 @@ describe("findPackageManager", () => {
   });
 });
 
-async function createProject() {
+async function createProject(): Promise<string> {
   const projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), "lac-pm-test-"));
   tmpDirs.push(projectRoot);
   return projectRoot;

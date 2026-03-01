@@ -7,12 +7,12 @@ import type {
   Ecosystem,
 } from "@license-auditor/data";
 import { findDependencies } from "./dependency-finder/find-dependencies.js";
+import { resolveAuditEcosystem } from "./ecosystem/resolve-audit-ecosystem.js";
 import {
   extractPackageNameFromPath,
   extractPackageNameWithVersion,
   readPackageJson,
 } from "./file-utils.js";
-import { resolveAuditEcosystem } from "./ecosystem/resolve-audit-ecosystem.js";
 import { filterOverrides } from "./filter-overrides.js";
 import { filterWithFilterRegex } from "./filter-with-filter-regex.js";
 import { getPackageName } from "./get-package-name.js";
@@ -173,7 +173,9 @@ async function collectNodeLicenses({
   });
 
   const foundPackageNames = new Set(
-    filteredByRegex.map((foundPackage) => getPackageName(foundPackage.packageName)),
+    filteredByRegex.map((foundPackage) =>
+      getPackageName(foundPackage.packageName),
+    ),
   );
 
   const { filteredPackages } = filterOverrides({

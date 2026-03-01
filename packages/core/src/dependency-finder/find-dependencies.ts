@@ -110,7 +110,9 @@ function extractWorkspacePatterns(packageJson: RawPackageJson): string[] {
   }
 
   if (Array.isArray(packageJson.workspaces)) {
-    return packageJson.workspaces.filter((workspace) => workspace.trim() !== "");
+    return packageJson.workspaces.filter(
+      (workspace) => workspace.trim() !== "",
+    );
   }
 
   return (
@@ -120,7 +122,9 @@ function extractWorkspacePatterns(packageJson: RawPackageJson): string[] {
   );
 }
 
-async function readPnpmWorkspacePatterns(projectRoot: string): Promise<string[]> {
+async function readPnpmWorkspacePatterns(
+  projectRoot: string,
+): Promise<string[]> {
   const workspaceFilePath = path.join(projectRoot, "pnpm-workspace.yaml");
 
   try {
@@ -165,7 +169,9 @@ async function readPnpmWorkspacePatterns(projectRoot: string): Promise<string[]>
   }
 }
 
-async function collectPackageDirectories(projectRoot: string): Promise<string[]> {
+async function collectPackageDirectories(
+  projectRoot: string,
+): Promise<string[]> {
   const directories: string[] = [];
 
   async function walk(directory: string): Promise<void> {
@@ -206,6 +212,7 @@ function matchWorkspacePattern(relativePath: string, pattern: string): boolean {
   const pathSegments = normalizedPath.split("/").filter(Boolean);
   const patternSegments = pattern.split("/").filter(Boolean);
 
+  // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Recursive glob matcher for "*" and "**" segments.
   const matchSegments = (pathIdx: number, patternIdx: number): boolean => {
     if (patternIdx === patternSegments.length) {
       return pathIdx === pathSegments.length;
@@ -226,7 +233,10 @@ function matchWorkspacePattern(relativePath: string, pattern: string): boolean {
       return false;
     }
 
-    if (currentPatternSegment === "*" || currentPatternSegment === pathSegments[pathIdx]) {
+    if (
+      currentPatternSegment === "*" ||
+      currentPatternSegment === pathSegments[pathIdx]
+    ) {
       return matchSegments(pathIdx + 1, patternIdx + 1);
     }
 
@@ -257,6 +267,7 @@ async function mapWorkspaceNamesToDirs(
   return result;
 }
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Dependency resolution intentionally keeps workspace and node_modules handling in one traversal.
 async function resolveDependenciesRecursively({
   projectRoot,
   roots,
@@ -293,7 +304,10 @@ async function resolveDependenciesRecursively({
     }
 
     const packageJson = readRawPackageJson(packageJsonPath);
-    const dependenciesToResolve = collectDependencyNames(packageJson, production);
+    const dependenciesToResolve = collectDependencyNames(
+      packageJson,
+      production,
+    );
     const packageDisplayName = packageJson.name ?? path.basename(realCurrent);
 
     for (const dependency of dependenciesToResolve) {
@@ -359,14 +373,18 @@ function collectDependencyNames(
     dependencyNames.set(dependencyName, "dependency");
   }
 
-  for (const dependencyName of Object.keys(packageJson.optionalDependencies ?? {})) {
+  for (const dependencyName of Object.keys(
+    packageJson.optionalDependencies ?? {},
+  )) {
     if (!dependencyNames.has(dependencyName)) {
       dependencyNames.set(dependencyName, "optionalDependency");
     }
   }
 
   if (!production) {
-    for (const dependencyName of Object.keys(packageJson.devDependencies ?? {})) {
+    for (const dependencyName of Object.keys(
+      packageJson.devDependencies ?? {},
+    )) {
       if (!dependencyNames.has(dependencyName)) {
         dependencyNames.set(dependencyName, "devDependency");
       }

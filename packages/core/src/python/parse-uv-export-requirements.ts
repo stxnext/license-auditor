@@ -1,5 +1,8 @@
 import path from "node:path";
-import { normalizePythonPackageName, type ParsedRequirement } from "./requirements.js";
+import {
+  type ParsedRequirement,
+  normalizePythonPackageName,
+} from "./requirements.js";
 
 const UV_PINNED_REQUIREMENT_REGEX =
   /^([A-Za-z0-9_.-]+)(\[[A-Za-z0-9_,.-]+\])?==([^\s;]+)(?:\s*;.*)?$/;
@@ -28,12 +31,10 @@ export function parseUvExportRequirements({
       continue;
     }
 
-    const normalizedLine = line
-      .replace(/\s+--hash=[^\s]+/g, "")
-      .trim();
+    const normalizedLine = line.replace(/\s+--hash=[^\s]+/g, "").trim();
 
     const match = normalizedLine.match(UV_PINNED_REQUIREMENT_REGEX);
-    if (!match?.[1] || !match[3]) {
+    if (!(match?.[1] && match[3])) {
       warnings.push(`Unsupported uv export requirement line: ${line}`);
       continue;
     }

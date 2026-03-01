@@ -19,8 +19,10 @@ export function filterWithFilterRegex({
 
   const filteredPackages = foundPackages.filter(
     (foundPackage) =>
-      !regex.test(getPackageName(foundPackage.packageName)) &&
-      !regex.test(foundPackage.packageName),
+      !(
+        regex.test(getPackageName(foundPackage.packageName)) ||
+        regex.test(foundPackage.packageName)
+      ),
   );
 
   return filteredPackages;

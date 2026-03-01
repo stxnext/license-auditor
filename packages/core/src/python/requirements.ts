@@ -25,7 +25,9 @@ export type UnsupportedRequirement = {
   packageName?: string | undefined;
 };
 
-export async function discoverRequirementsFiles(cwd: string): Promise<string[]> {
+export async function discoverRequirementsFiles(
+  cwd: string,
+): Promise<string[]> {
   const files: string[] = [];
 
   const rootRequirements = path.join(cwd, "requirements.txt");
@@ -84,6 +86,7 @@ export async function parseRequirementsFiles({
   };
 }
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Recursive include parsing and requirement normalization are handled in one pass.
 async function parseSingleFile({
   cwd,
   filePath,
@@ -152,7 +155,7 @@ async function parseSingleFile({
 
     const [, rawName, , version] = pinnedMatch;
 
-    if (!rawName || !version) {
+    if (!(rawName && version)) {
       warnings.push(
         `Unsupported requirement spec in ${path.relative(cwd, filePath)}: ${line}`,
       );

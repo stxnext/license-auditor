@@ -84,7 +84,16 @@ export default function AuditLicenses({
       }
     };
     void getResults();
-  }, [exit, config, production, filterRegex, verbose, ecosystem, python, requirements]);
+  }, [
+    exit,
+    config,
+    production,
+    filterRegex,
+    verbose,
+    ecosystem,
+    python,
+    requirements,
+  ]);
 
   useEffect(() => {
     if (result && json) {

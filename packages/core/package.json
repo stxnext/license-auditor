@@ -13,9 +13,7 @@
       "types": "./dist/types/index.d.ts"
     }
   },
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "scripts": {
     "build": "bun run clean && tsc -p tsconfig.build.json",
     "clean": "rm -rf dist",

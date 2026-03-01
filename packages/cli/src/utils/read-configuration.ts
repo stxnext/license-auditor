@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
-import path from "node:path";
 import { createRequire } from "node:module";
+import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { ConfigSchema, type ConfigType } from "@license-auditor/data";
 
@@ -52,7 +52,9 @@ async function loadConfigFile(filePath: string): Promise<ConfigType> {
       ? formatConfigIssue(firstIssue)
       : "Invalid configuration structure";
 
-    throw new Error(`Invalid configuration file at ${filePath}: ${issueMessage}`);
+    throw new Error(
+      `Invalid configuration file at ${filePath}: ${issueMessage}`,
+    );
   }
 
   return parsedConfig.data;
@@ -111,16 +113,20 @@ function removeSchemaProperty(configValue: unknown): unknown {
 }
 
 function parseYaml(yamlContent: string): unknown {
-  const bun = (globalThis as { Bun?: { YAML?: { parse: (value: string) => unknown } } })
-    .Bun;
+  const bun = (globalThis as Record<string, unknown>)["Bun"] as
+    | Record<string, unknown>
+    | undefined;
+  const yaml = bun?.["YAML"] as
+    | { parse?: (value: string) => unknown }
+    | undefined;
 
-  if (!bun?.YAML) {
+  if (!yaml?.parse) {
     throw new Error(
       "YAML configuration files are supported only in Bun runtime.",
     );
   }
 
-  return bun.YAML.parse(yamlContent);
+  return yaml.parse(yamlContent);
 }
 
 function formatConfigIssue(issue: {

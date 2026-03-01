@@ -30,7 +30,10 @@ describe("resolveAuditEcosystem", () => {
 
   it("uses config ecosystem over auto-detection", async () => {
     const cwd = await createProject();
-    await fs.writeFile(path.join(cwd, "pyproject.toml"), "[project]\nname='test'\n");
+    await fs.writeFile(
+      path.join(cwd, "pyproject.toml"),
+      "[project]\nname='test'\n",
+    );
 
     const ecosystem = resolveAuditEcosystem({
       cwd,
@@ -42,7 +45,10 @@ describe("resolveAuditEcosystem", () => {
 
   it("auto-detects python project", async () => {
     const cwd = await createProject();
-    await fs.writeFile(path.join(cwd, "pyproject.toml"), "[project]\nname='test'\n");
+    await fs.writeFile(
+      path.join(cwd, "pyproject.toml"),
+      "[project]\nname='test'\n",
+    );
 
     const ecosystem = resolveAuditEcosystem({ cwd });
 
@@ -61,7 +67,10 @@ describe("resolveAuditEcosystem", () => {
   it("fails in auto mode when both node and python signals are detected", async () => {
     const cwd = await createProject();
     await fs.writeFile(path.join(cwd, "package.json"), '{"name":"test"}\n');
-    await fs.writeFile(path.join(cwd, "pyproject.toml"), "[project]\nname='test'\n");
+    await fs.writeFile(
+      path.join(cwd, "pyproject.toml"),
+      "[project]\nname='test'\n",
+    );
 
     expect(() => resolveAuditEcosystem({ cwd })).toThrowError(
       /Detected both Node and Python project signals/,
@@ -89,7 +98,9 @@ describe("resolveAuditEcosystem", () => {
 });
 
 async function createProject(): Promise<string> {
-  const directory = await fs.mkdtemp(path.join(os.tmpdir(), "lac-ecosystem-test-"));
+  const directory = await fs.mkdtemp(
+    path.join(os.tmpdir(), "lac-ecosystem-test-"),
+  );
   tmpDirs.push(directory);
   return directory;
 }

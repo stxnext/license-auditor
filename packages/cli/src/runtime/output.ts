@@ -25,9 +25,18 @@ const ICONS = {
   item: pc.gray("›"),
 };
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Centralized CLI output flow keeps strict/verbose branches in one place.
 export function printAuditOutput(
   result: LicenseAuditResult,
-  { verbose, strict, production, filter, bail, warning, overrides }: OutputOptions,
+  {
+    verbose,
+    strict,
+    production,
+    filter,
+    bail,
+    warning,
+    overrides,
+  }: OutputOptions,
 ): void {
   const hasWhitelisted = result.groupedByStatus.whitelist.length > 0;
   const hasBlacklisted = result.groupedByStatus.blacklist.length > 0;
@@ -103,7 +112,9 @@ export function printAuditOutput(
     for (const [packageKey, notFoundResult] of result.notFound.entries()) {
       const packageName = notFoundResult.packageName ?? packageKey;
       if (verbose) {
-        console.log(`${ICONS.item} ${packageName}: ${notFoundResult.errorMessage}`);
+        console.log(
+          `${ICONS.item} ${packageName}: ${notFoundResult.errorMessage}`,
+        );
       } else {
         console.log(`${ICONS.item} ${packageName}`);
       }
@@ -115,7 +126,10 @@ export function printAuditOutput(
       `${ICONS.warning} ${pluralize(result.needsUserVerification.size, "package is", "packages are")} requiring manual checking:`,
     );
 
-    for (const [packageKey, verificationResult] of result.needsUserVerification.entries()) {
+    for (const [
+      packageKey,
+      verificationResult,
+    ] of result.needsUserVerification.entries()) {
       const packageName = verificationResult.packageName ?? packageKey;
       if (verbose) {
         console.log(`${ICONS.item} ${verificationResult.verificationMessage}`);
@@ -155,7 +169,9 @@ export function printAuditOutput(
   }
 
   if (!verbose) {
-    console.log("\nuse --verbose flag for more details and paths included in output");
+    console.log(
+      "\nuse --verbose flag for more details and paths included in output",
+    );
   }
 }
 
@@ -239,7 +255,9 @@ function printOverrideSummary(
   }
 
   if (resultOverrides.notFoundOverrides.length > 0) {
-    console.log(`${ICONS.warning} Packages listed in the overrides field but not found:`);
+    console.log(
+      `${ICONS.warning} Packages listed in the overrides field but not found:`,
+    );
 
     for (const packageName of resultOverrides.notFoundOverrides) {
       console.log(`${ICONS.item} ${packageName}`);
@@ -280,14 +298,14 @@ function printVerboseView(
       : "No",
   }));
 
-    const notFoundRows = Array.from(result.notFound.entries()).map(
-      ([packageKey, value]) => ({
-        status: "not found" as const,
-        packageName: value.packageName ?? packageKey,
-        license: "-",
-        deprecated: "-",
-      }),
-    );
+  const notFoundRows = Array.from(result.notFound.entries()).map(
+    ([packageKey, value]) => ({
+      status: "not found" as const,
+      packageName: value.packageName ?? packageKey,
+      license: "-",
+      deprecated: "-",
+    }),
+  );
 
   const combinedRows = [...rows, ...notFoundRows].filter((row) => {
     if (!filter) {
@@ -306,7 +324,9 @@ function printVerboseView(
   console.log("------ | ------------ | ------- | ----------");
 
   for (const row of combinedRows) {
-    console.log(`${row.status} | ${row.packageName} | ${row.license} | ${row.deprecated}`);
+    console.log(
+      `${row.status} | ${row.packageName} | ${row.license} | ${row.deprecated}`,
+    );
   }
 
   console.log("");

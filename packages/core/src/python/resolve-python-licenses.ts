@@ -8,8 +8,8 @@ import { extractLicensesFromExpression } from "../license-finder/extract-license
 import { findLicenseById } from "../license-finder/find-license-by-id.js";
 import { findLicenseInLicenseFile } from "../license-finder/find-license-in-license-file.js";
 import { parseLicenseFiles } from "../license-finder/find-license-in-license-file.js";
-import { parseLicenseLogicalExpression } from "../license-finder/parse-license-logical-expression.js";
 import type { LicensesWithPathAndStatus } from "../license-finder/licenses-with-path.js";
+import { parseLicenseLogicalExpression } from "../license-finder/parse-license-logical-expression.js";
 
 export type PythonMetadataInput = {
   licenseExpression?: string | undefined;
@@ -53,10 +53,9 @@ export async function resolvePythonLicenses({
 }> {
   const metadataLicenses = collectLicensesFromMetadata(metadata);
 
-  const fileLicenses =
-    explicitLicensePaths
-      ? await parseSpecificLicenseFiles(explicitLicensePaths, packagePath)
-      : await parseLicenseFiles(packagePath);
+  const fileLicenses = explicitLicensePaths
+    ? await parseSpecificLicenseFiles(explicitLicensePaths, packagePath)
+    : await parseLicenseFiles(packagePath);
 
   const mergedLicenses = dedupeLicenses([
     ...metadataLicenses.licenses,
@@ -69,7 +68,8 @@ export async function resolvePythonLicenses({
   ]);
 
   const metadataSource =
-    mergedLicenses.length > 0 && fileLicenses.licenses.length === mergedLicenses.length
+    mergedLicenses.length > 0 &&
+    fileLicenses.licenses.length === mergedLicenses.length
       ? "license-file"
       : "local-metadata";
 
@@ -89,6 +89,7 @@ export async function resolvePythonLicenses({
   };
 }
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Metadata extraction intentionally checks license expression, direct license field, and classifier mappings in one flow.
 function collectLicensesFromMetadata(metadata: PythonMetadataInput): {
   licenses: LicenseWithSource[];
   licensePath: string[];
@@ -100,7 +101,9 @@ function collectLicensesFromMetadata(metadata: PythonMetadataInput): {
   let expressionValue: string | undefined;
 
   if (metadata.licenseExpression) {
-    const expression = parseLicenseLogicalExpression(metadata.licenseExpression);
+    const expression = parseLicenseLogicalExpression(
+      metadata.licenseExpression,
+    );
     if (expression) {
       parsedExpression = expression;
       expressionValue = metadata.licenseExpression;
@@ -162,7 +165,9 @@ function collectLicensesFromMetadata(metadata: PythonMetadataInput): {
   };
 }
 
-function resolveLicensesFromClassifier(classifier: string): LicenseWithSource[] {
+function resolveLicensesFromClassifier(
+  classifier: string,
+): LicenseWithSource[] {
   const normalized = classifier.trim().toLowerCase();
 
   const mappedLicenses =
@@ -204,7 +209,8 @@ async function parseSpecificLicenseFiles(
 
     if (
       result.licenses.some(
-        (license) => license.source === LICENSE_SOURCE.licenseFileContextKeywords,
+        (license) =>
+          license.source === LICENSE_SOURCE.licenseFileContextKeywords,
       )
     ) {
       uncertainFiles += 1;

@@ -5,13 +5,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "os": [
-    "linux"
-  ],
-  "cpu": [
-    "arm64"
-  ],
-  "files": [
-    "bin"
-  ]
+  "os": ["linux"],
+  "cpu": ["arm64"],
+  "files": ["bin"]
 }

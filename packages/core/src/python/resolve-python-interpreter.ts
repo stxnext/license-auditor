@@ -35,9 +35,7 @@ export async function resolvePythonInterpreter({
         timeoutMs: 8000,
       });
       return candidate;
-    } catch {
-      continue;
-    }
+    } catch {}
   }
 
   throw new Error(

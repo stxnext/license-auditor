@@ -22,7 +22,10 @@ afterEach(async () => {
 describe("requirements parser", () => {
   it("discovers requirements.txt and requirements/*.txt files", async () => {
     const cwd = await createProject();
-    await fs.writeFile(path.join(cwd, "requirements.txt"), "requests==2.31.0\n");
+    await fs.writeFile(
+      path.join(cwd, "requirements.txt"),
+      "requests==2.31.0\n",
+    );
     await fs.mkdir(path.join(cwd, "requirements"), { recursive: true });
     await fs.writeFile(
       path.join(cwd, "requirements", "dev.txt"),
@@ -160,19 +163,25 @@ describe("requirements parser", () => {
 
     expect(result.requirements).toHaveLength(0);
     expect(result.warnings).toEqual(
-      expect.arrayContaining([expect.stringContaining("Requirements include not found")]),
+      expect.arrayContaining([
+        expect.stringContaining("Requirements include not found"),
+      ]),
     );
   });
 });
 
 describe("normalizePythonPackageName", () => {
   it("normalizes separators and casing", () => {
-    expect(normalizePythonPackageName("My_Package.Name")).toBe("my-package-name");
+    expect(normalizePythonPackageName("My_Package.Name")).toBe(
+      "my-package-name",
+    );
   });
 });
 
 async function createProject(): Promise<string> {
-  const directory = await fs.mkdtemp(path.join(os.tmpdir(), "lac-requirements-test-"));
+  const directory = await fs.mkdtemp(
+    path.join(os.tmpdir(), "lac-requirements-test-"),
+  );
   tmpDirs.push(directory);
   return directory;
 }

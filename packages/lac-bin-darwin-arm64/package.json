@@ -5,13 +5,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "os": [
-    "darwin"
-  ],
-  "cpu": [
-    "arm64"
-  ],
-  "files": [
-    "bin"
-  ]
+  "os": ["darwin"],
+  "cpu": ["arm64"],
+  "files": ["bin"]
 }

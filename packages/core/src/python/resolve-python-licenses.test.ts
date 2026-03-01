@@ -29,12 +29,15 @@ describe("resolvePythonLicenses", () => {
     });
 
     expect(result.licensesWithPath.licenseExpression).toBe("MIT OR Apache-2.0");
-    expect(result.licensesWithPath.licenses.map((license) => license.licenseId)).toEqual(
-      expect.arrayContaining(["MIT", "Apache-2.0"]),
-    );
-    expect(result.licensesWithPath.licenses.every((license) =>
-      license.source === LICENSE_SOURCE.pythonMetadataLicenseExpression
-    )).toBe(true);
+    expect(
+      result.licensesWithPath.licenses.map((license) => license.licenseId),
+    ).toEqual(expect.arrayContaining(["MIT", "Apache-2.0"]));
+    expect(
+      result.licensesWithPath.licenses.every(
+        (license) =>
+          license.source === LICENSE_SOURCE.pythonMetadataLicenseExpression,
+      ),
+    ).toBe(true);
   });
 
   it("maps license classifier to SPDX IDs using curated mapping", async () => {
@@ -68,9 +71,9 @@ describe("resolvePythonLicenses", () => {
       explicitLicensePaths: [licensePath],
     });
 
-    expect(result.licensesWithPath.licenses.map((license) => license.licenseId)).toContain(
-      "MIT",
-    );
+    expect(
+      result.licensesWithPath.licenses.map((license) => license.licenseId),
+    ).toContain("MIT");
     expect(result.metadataSource).toBe("license-file");
   });
 
@@ -84,12 +87,16 @@ describe("resolvePythonLicenses", () => {
     });
 
     expect(result.licensesWithPath.licenses).toHaveLength(0);
-    expect(result.licensesWithPath.verificationStatus).toBe("licenseFileNotFound");
+    expect(result.licensesWithPath.verificationStatus).toBe(
+      "licenseFileNotFound",
+    );
   });
 });
 
 async function createProject(): Promise<string> {
-  const directory = await fs.mkdtemp(path.join(os.tmpdir(), "lac-python-license-test-"));
+  const directory = await fs.mkdtemp(
+    path.join(os.tmpdir(), "lac-python-license-test-"),
+  );
   tmpDirs.push(directory);
   return directory;
 }

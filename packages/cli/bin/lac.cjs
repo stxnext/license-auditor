@@ -56,7 +56,7 @@ let binaryPath =
     ? null
     : path.join(packageRoot, platformConfig.relativeBinaryPath);
 
-if (!binaryPath || !fs.existsSync(binaryPath)) {
+if (!(binaryPath && fs.existsSync(binaryPath))) {
   const localSourcePath = path.resolve(__dirname, "../src/cli.ts");
 
   if (fs.existsSync(localSourcePath)) {

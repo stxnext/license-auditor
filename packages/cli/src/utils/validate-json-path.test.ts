@@ -1,15 +1,17 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { afterEach, describe, expect, it } from "vitest";
 import { ValidateJsonPathException } from "@brainhubeu/license-auditor-core";
+import { afterEach, describe, expect, it } from "vitest";
 import { validateJsonPath } from "./validate-json-path.js";
 
 const tmpDirs: string[] = [];
 
 afterEach(async () => {
   await Promise.all(
-    tmpDirs.map((directory) => fs.rm(directory, { recursive: true, force: true })),
+    tmpDirs.map((directory) =>
+      fs.rm(directory, { recursive: true, force: true }),
+    ),
   );
   tmpDirs.length = 0;
 });
@@ -33,6 +35,8 @@ describe("validateJsonPath", () => {
 
     const result = await validateJsonPath(tempDirectory);
 
-    expect(result).toBe(path.join(tempDirectory, "license-auditor.results.json"));
+    expect(result).toBe(
+      path.join(tempDirectory, "license-auditor.results.json"),
+    );
   });
 });

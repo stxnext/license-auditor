@@ -4,16 +4,24 @@ import type { ConfigType } from "@license-auditor/data";
 import { LICENSE_SOURCE } from "@license-auditor/data";
 import { filterOverrides } from "../filter-overrides.js";
 import { filterWithFilterRegex } from "../filter-with-filter-regex.js";
-import { getPackageName } from "../get-package-name.js";
 import type {
   ErrorResults,
   PackageLicensesWithPath,
 } from "../get-all-licenses.js";
-import { discoverRequirementsFiles, normalizePythonPackageName, parseRequirementsFiles, type ParsedRequirement } from "./requirements.js";
+import { getPackageName } from "../get-package-name.js";
 import { parseUvExportRequirements } from "./parse-uv-export-requirements.js";
 import { fetchPypiProjectMetadata } from "./pypi-client.js";
+import {
+  type ParsedRequirement,
+  discoverRequirementsFiles,
+  normalizePythonPackageName,
+  parseRequirementsFiles,
+} from "./requirements.js";
 import { resolvePythonInterpreter } from "./resolve-python-interpreter.js";
-import { resolvePythonLicenses, type PythonMetadataInput } from "./resolve-python-licenses.js";
+import {
+  type PythonMetadataInput,
+  resolvePythonLicenses,
+} from "./resolve-python-licenses.js";
 import { runCommand } from "./run-command.js";
 
 type CollectedLicenses = {
@@ -38,18 +46,15 @@ type PythonDependencyCandidate = {
 type PythonEnvironmentDistribution = {
   name?: string | undefined;
   normalizedName?: string | undefined;
-  normalized_name?: string | undefined;
   version?: string | undefined;
   packagePath?: string | undefined;
-  package_path?: string | undefined;
   licenseExpression?: string | undefined;
-  license_expression?: string | undefined;
   license?: string | undefined;
   classifiers?: string[] | undefined;
   licensePaths?: string[] | undefined;
-  license_paths?: string[] | undefined;
-};
+} & Record<string, unknown>;
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: This orchestration keeps source selection, filtering, and enrichment in one deterministic pipeline.
 export async function collectPythonLicenses({
   cwd,
   config,
@@ -78,9 +83,12 @@ export async function collectPythonLicenses({
         )
       : await discoverRequirementsFiles(cwd);
 
-  const pinnedDependencies = new Map<string, ParsedRequirement & {
-    dependencySource: "uv-lock" | "requirements";
-  }>();
+  const pinnedDependencies = new Map<
+    string,
+    ParsedRequirement & {
+      dependencySource: "uv-lock" | "requirements";
+    }
+  >();
 
   if (hasUvLock) {
     const uvResult = await collectDependenciesFromUvLock({
@@ -226,7 +234,9 @@ export async function collectPythonLicenses({
         });
       } catch (error) {
         const errorMessage =
-          error instanceof Error ? error.message : "Unknown Python resolution error";
+          error instanceof Error
+            ? error.message
+            : "Unknown Python resolution error";
 
         errorResults.set(buildResultKey(candidate.packageName), {
           packageName: candidate.packageName,
@@ -323,7 +333,9 @@ export async function collectPythonLicenses({
         });
       } catch (error) {
         const errorMessage =
-          error instanceof Error ? error.message : "Unknown Python resolution error";
+          error instanceof Error
+            ? error.message
+            : "Unknown Python resolution error";
 
         errorResults.set(buildResultKey(candidate.packageName), {
           packageName: candidate.packageName,
@@ -403,28 +415,43 @@ async function collectDependenciesFromEnvironment({
 
   const parsed = JSON.parse(stdout) as PythonEnvironmentDistribution[];
 
+  // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Distribution normalization must reconcile mixed metadata shapes from multiple Python tooling outputs.
   return parsed.flatMap((distribution) => {
     const name = distribution.name;
     const version = distribution.version;
 
-    if (!name || !version) {
+    if (!(name && version)) {
       return [];
     }
 
+    const normalizedNameFromSnake = distribution["normalized_name"];
+    const packagePathFromSnake = distribution["package_path"];
+    const licenseExpressionFromSnake = distribution["license_expression"];
+    const licensePathsFromSnake = distribution["license_paths"];
     const normalizedName =
       distribution.normalizedName ??
-      distribution.normalized_name ??
+      (typeof normalizedNameFromSnake === "string"
+        ? normalizedNameFromSnake
+        : undefined) ??
       normalizePythonPackageName(name);
     const packagePath =
       distribution.packagePath ??
-      distribution.package_path ??
+      (typeof packagePathFromSnake === "string"
+        ? packagePathFromSnake
+        : undefined) ??
       `${normalizedName}@${version}`;
     const licenseExpression =
       distribution.licenseExpression ??
-      distribution.license_expression;
-    const licensePaths =
-      distribution.licensePaths ??
-      distribution.license_paths;
+      (typeof licenseExpressionFromSnake === "string"
+        ? licenseExpressionFromSnake
+        : undefined);
+    const licensePaths = Array.isArray(distribution.licensePaths)
+      ? distribution.licensePaths
+      : Array.isArray(licensePathsFromSnake)
+        ? licensePathsFromSnake.filter(
+            (value): value is string => typeof value === "string",
+          )
+        : [];
 
     return [
       {
@@ -440,7 +467,7 @@ async function collectDependenciesFromEnvironment({
             ? distribution.classifiers
             : [],
         },
-        explicitLicensePaths: Array.isArray(licensePaths) ? licensePaths : [],
+        explicitLicensePaths: licensePaths,
         metadataSource: "local-metadata" as const,
         metadataAvailable: true,
       },
@@ -504,51 +531,55 @@ async function enrichDependenciesFromPypi({
   >;
   warnings: string[];
 }): Promise<PythonDependencyCandidate[]> {
-  const resolved = await mapWithConcurrency(dependencies, 8, async (dependency) => {
-    const metadata = await fetchPypiProjectMetadata({
-      name: dependency.normalizedName,
-      version: dependency.version,
-    });
+  const resolved = await mapWithConcurrency(
+    dependencies,
+    8,
+    async (dependency) => {
+      const metadata = await fetchPypiProjectMetadata({
+        name: dependency.normalizedName,
+        version: dependency.version,
+      });
 
-    if (!metadata) {
-      warnings.push(
-        [
-          `Unable to resolve PyPI metadata for ${dependency.name}==${dependency.version}.`,
-          `Source: ${dependency.sourceFile}.`,
-        ].join(" "),
-      );
+      if (!metadata) {
+        warnings.push(
+          [
+            `Unable to resolve PyPI metadata for ${dependency.name}==${dependency.version}.`,
+            `Source: ${dependency.sourceFile}.`,
+          ].join(" "),
+        );
+
+        return {
+          packageName: `${dependency.name}@${dependency.version}`,
+          packagePath: dependency.sourceFile,
+          normalizedName: dependency.normalizedName,
+          version: dependency.version,
+          dependencySource: dependency.dependencySource,
+          metadata: {
+            classifiers: [],
+          },
+          metadataSource: "pypi-json-api",
+          explicitLicensePaths: [],
+          metadataAvailable: false,
+        } satisfies PythonDependencyCandidate;
+      }
 
       return {
-        packageName: `${dependency.name}@${dependency.version}`,
+        packageName: `${metadata.name}@${metadata.version}`,
         packagePath: dependency.sourceFile,
         normalizedName: dependency.normalizedName,
         version: dependency.version,
         dependencySource: dependency.dependencySource,
         metadata: {
-          classifiers: [],
+          licenseExpression: metadata.licenseExpression,
+          license: metadata.license,
+          classifiers: metadata.classifiers,
         },
         metadataSource: "pypi-json-api",
         explicitLicensePaths: [],
-        metadataAvailable: false,
+        metadataAvailable: true,
       } satisfies PythonDependencyCandidate;
-    }
-
-    return {
-      packageName: `${metadata.name}@${metadata.version}`,
-      packagePath: dependency.sourceFile,
-      normalizedName: dependency.normalizedName,
-      version: dependency.version,
-      dependencySource: dependency.dependencySource,
-      metadata: {
-        licenseExpression: metadata.licenseExpression,
-        license: metadata.license,
-        classifiers: metadata.classifiers,
-      },
-      metadataSource: "pypi-json-api",
-      explicitLicensePaths: [],
-      metadataAvailable: true,
-    } satisfies PythonDependencyCandidate;
-  });
+    },
+  );
 
   return resolved;
 }
@@ -561,14 +592,17 @@ async function mapWithConcurrency<T, R>(
   const results: R[] = new Array(items.length);
   let nextIndex = 0;
 
-  const workers = Array.from({ length: Math.min(limit, items.length) }, async () => {
-    while (nextIndex < items.length) {
-      const currentIndex = nextIndex;
-      nextIndex += 1;
+  const workers = Array.from(
+    { length: Math.min(limit, items.length) },
+    async () => {
+      while (nextIndex < items.length) {
+        const currentIndex = nextIndex;
+        nextIndex += 1;
 
-      results[currentIndex] = await mapper(items[currentIndex] as T);
-    }
-  });
+        results[currentIndex] = await mapper(items[currentIndex] as T);
+      }
+    },
+  );
 
   await Promise.all(workers);
 

@@ -109,7 +109,11 @@ describe("findDependencies", () => {
       name: "root",
     });
 
-    await fs.writeFile(path.join(projectRoot, ".pnp.cjs"), "module.exports = {};", "utf8");
+    await fs.writeFile(
+      path.join(projectRoot, ".pnp.cjs"),
+      "module.exports = {};",
+      "utf8",
+    );
 
     await expect(
       findDependencies({
@@ -229,7 +233,9 @@ describe("findDependencies", () => {
   });
 
   it("does not resolve dependencies from parent directories", async () => {
-    const parentRoot = await fs.mkdtemp(path.join(os.tmpdir(), "lac-core-parent-"));
+    const parentRoot = await fs.mkdtemp(
+      path.join(os.tmpdir(), "lac-core-parent-"),
+    );
     tmpDirs.push(parentRoot);
 
     const projectRoot = path.join(parentRoot, "project");
@@ -242,9 +248,12 @@ describe("findDependencies", () => {
       },
     });
 
-    await writePackageJson(path.join(parentRoot, "node_modules", "dep-from-parent"), {
-      name: "dep-from-parent",
-    });
+    await writePackageJson(
+      path.join(parentRoot, "node_modules", "dep-from-parent"),
+      {
+        name: "dep-from-parent",
+      },
+    );
 
     const result = await findDependencies({
       projectRoot,
@@ -256,8 +265,10 @@ describe("findDependencies", () => {
   });
 });
 
-async function createProject() {
-  const projectRoot = await fs.mkdtemp(path.join(os.tmpdir(), "lac-core-test-"));
+async function createProject(): Promise<string> {
+  const projectRoot = await fs.mkdtemp(
+    path.join(os.tmpdir(), "lac-core-test-"),
+  );
   tmpDirs.push(projectRoot);
 
   await fs.mkdir(path.join(projectRoot, "node_modules"), { recursive: true });
@@ -265,7 +276,10 @@ async function createProject() {
   return projectRoot;
 }
 
-async function writePackageJson(directory: string, data: Record<string, unknown>) {
+async function writePackageJson(
+  directory: string,
+  data: Record<string, unknown>,
+): Promise<void> {
   await fs.mkdir(directory, { recursive: true });
   await fs.writeFile(
     path.join(directory, "package.json"),
@@ -274,7 +288,9 @@ async function writePackageJson(directory: string, data: Record<string, unknown>
   );
 }
 
-async function getDependencyNames(dependencyPaths: string[]) {
+async function getDependencyNames(
+  dependencyPaths: string[],
+): Promise<string[]> {
   const packageJsonContents = await Promise.all(
     dependencyPaths.map(async (dependencyPath) => {
       const packageJsonPath = path.join(dependencyPath, "package.json");

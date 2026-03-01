@@ -1,3 +1,4 @@
+import { InvalidEnvironmentVariablesException } from "@brainhubeu/license-auditor-core";
 import {
   cancel,
   intro,
@@ -6,13 +7,14 @@ import {
   select,
   spinner,
 } from "@clack/prompts";
-import { InvalidEnvironmentVariablesException } from "@brainhubeu/license-auditor-core";
 import { ConfigExtension } from "../constants/config-constants.js";
 import { envSchema } from "../env.js";
 import { ConfigListType, generateConfig } from "../utils/generate-config.js";
 
 export async function runInitWizard({ rootDir }: { rootDir: string }) {
-  const parsedEnv = envSchema.safeParse({ ...process.env, ROOT_DIR: rootDir });
+  const envInput = { ...process.env };
+  envInput["ROOT_DIR"] = rootDir;
+  const parsedEnv = envSchema.safeParse(envInput);
 
   if (!parsedEnv.success) {
     throw new InvalidEnvironmentVariablesException(

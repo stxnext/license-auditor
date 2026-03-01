@@ -70,6 +70,8 @@ describe("parseUvExportRequirements", () => {
 
     expect(result.dependencies).toHaveLength(0);
     expect(result.warnings).toHaveLength(2);
-    expect(result.warnings[0]).toContain("Unsupported uv export requirement line");
+    expect(result.warnings[0]).toContain(
+      "Unsupported uv export requirement line",
+    );
   });
 });

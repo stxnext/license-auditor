@@ -34,10 +34,7 @@
     "test:unit": "vitest run",
     "test:coverage": "vitest run --coverage"
   },
-  "files": [
-    "dist",
-    "bin"
-  ],
+  "files": ["dist", "bin"],
   "dependencies": {},
   "optionalDependencies": {
     "@brainhubeu/lac-bin-darwin-arm64": "3.0.0-experimental.0",

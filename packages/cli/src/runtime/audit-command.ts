@@ -1,8 +1,8 @@
-import { confirm, isCancel, spinner } from "@clack/prompts";
 import { auditLicenses } from "@brainhubeu/license-auditor-core";
-import { LicenseStatusSchema, type Ecosystem } from "@license-auditor/data";
-import { readDefaultConfig } from "../utils/read-default-config.js";
+import { confirm, isCancel, spinner } from "@clack/prompts";
+import { type Ecosystem, LicenseStatusSchema } from "@license-auditor/data";
 import { readConfiguration } from "../utils/read-configuration.js";
+import { readDefaultConfig } from "../utils/read-default-config.js";
 import { saveResultToJson } from "../utils/save-result-to-json.js";
 import { validateJsonPath } from "../utils/validate-json-path.js";
 import { runInitWizard } from "./init-wizard.js";
@@ -81,7 +81,9 @@ export async function runAuditCommand({
   });
 }
 
-function parseEcosystemOption(value: string | undefined): Ecosystem | undefined {
+function parseEcosystemOption(
+  value: string | undefined,
+): Ecosystem | undefined {
   if (!value) {
     return undefined;
   }
@@ -120,7 +122,8 @@ async function loadConfig({
 
   if (!loadedConfiguration) {
     const shouldCreateConfig = await confirm({
-      message: "Configuration file not found. Would you like to create one now?",
+      message:
+        "Configuration file not found. Would you like to create one now?",
       initialValue: true,
     });
 

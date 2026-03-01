@@ -32,12 +32,14 @@ describe("resolvePythonInterpreter", () => {
     const cwd = await createProject();
     const cliPythonPath = "/custom/python";
 
-    runCommandMock.mockImplementation(async ({ command }: { command: string }) => {
-      if (command === cliPythonPath) {
-        return { stdout: "Python 3.12.0", stderr: "" };
-      }
-      throw new Error("not found");
-    });
+    runCommandMock.mockImplementation(
+      async ({ command }: { command: string }) => {
+        if (command === cliPythonPath) {
+          return { stdout: "Python 3.12.0", stderr: "" };
+        }
+        throw new Error("not found");
+      },
+    );
 
     const interpreter = await resolvePythonInterpreter({
       cwd,
@@ -63,12 +65,14 @@ describe("resolvePythonInterpreter", () => {
     await fs.mkdir(path.dirname(venvInterpreter), { recursive: true });
     await fs.writeFile(venvInterpreter, "");
 
-    runCommandMock.mockImplementation(async ({ command }: { command: string }) => {
-      if (command === venvInterpreter) {
-        return { stdout: "Python 3.11.9", stderr: "" };
-      }
-      throw new Error("not found");
-    });
+    runCommandMock.mockImplementation(
+      async ({ command }: { command: string }) => {
+        if (command === venvInterpreter) {
+          return { stdout: "Python 3.11.9", stderr: "" };
+        }
+        throw new Error("not found");
+      },
+    );
 
     const interpreter = await resolvePythonInterpreter({ cwd });
 
@@ -78,12 +82,14 @@ describe("resolvePythonInterpreter", () => {
   it("falls back to python3 when .venv is unavailable", async () => {
     const cwd = await createProject();
 
-    runCommandMock.mockImplementation(async ({ command }: { command: string }) => {
-      if (command === "python3") {
-        return { stdout: "Python 3.10.0", stderr: "" };
-      }
-      throw new Error("not found");
-    });
+    runCommandMock.mockImplementation(
+      async ({ command }: { command: string }) => {
+        if (command === "python3") {
+          return { stdout: "Python 3.10.0", stderr: "" };
+        }
+        throw new Error("not found");
+      },
+    );
 
     const interpreter = await resolvePythonInterpreter({ cwd });
 
@@ -93,12 +99,14 @@ describe("resolvePythonInterpreter", () => {
   it("falls back to python when python3 is unavailable", async () => {
     const cwd = await createProject();
 
-    runCommandMock.mockImplementation(async ({ command }: { command: string }) => {
-      if (command === "python") {
-        return { stdout: "Python 3.9.0", stderr: "" };
-      }
-      throw new Error("not found");
-    });
+    runCommandMock.mockImplementation(
+      async ({ command }: { command: string }) => {
+        if (command === "python") {
+          return { stdout: "Python 3.9.0", stderr: "" };
+        }
+        throw new Error("not found");
+      },
+    );
 
     const interpreter = await resolvePythonInterpreter({ cwd });
 
@@ -117,7 +125,9 @@ describe("resolvePythonInterpreter", () => {
 });
 
 async function createProject(): Promise<string> {
-  const directory = await fs.mkdtemp(path.join(os.tmpdir(), "lac-python-interpreter-test-"));
+  const directory = await fs.mkdtemp(
+    path.join(os.tmpdir(), "lac-python-interpreter-test-"),
+  );
   tmpDirs.push(directory);
   return directory;
 }

@@ -1,5 +1,5 @@
-import path from "node:path";
 import { spawn } from "node:child_process";
+import path from "node:path";
 
 export type CliCommand = {
   command: string;
@@ -9,39 +9,41 @@ export type CliCommand = {
 };
 
 export async function runCliCommand(command: CliCommand) {
-  return new Promise<{ output: string; errorCode: number }>((resolve, reject) => {
-    const normalized = normalizeCommand(command);
+  return new Promise<{ output: string; errorCode: number }>(
+    (resolve, reject) => {
+      const normalized = normalizeCommand(command);
 
-    const child = spawn(normalized.command, normalized.args, {
-      cwd: command.cwd,
-      env: {
-        ...process.env,
-        ...command.env,
-      },
-      stdio: ["ignore", "pipe", "pipe"],
-    });
-
-    const output: string[] = [];
-
-    child.stdout.on("data", (data) => {
-      output.push(data.toString());
-    });
-
-    child.stderr.on("data", (data) => {
-      output.push(data.toString());
-    });
-
-    child.on("error", (error) => {
-      reject(error);
-    });
-
-    child.on("close", (code) => {
-      resolve({
-        output: output.join(""),
-        errorCode: code ?? 1,
+      const child = spawn(normalized.command, normalized.args, {
+        cwd: command.cwd,
+        env: {
+          ...process.env,
+          ...command.env,
+        },
+        stdio: ["ignore", "pipe", "pipe"],
       });
-    });
-  });
+
+      const output: string[] = [];
+
+      child.stdout.on("data", (data) => {
+        output.push(data.toString());
+      });
+
+      child.stderr.on("data", (data) => {
+        output.push(data.toString());
+      });
+
+      child.on("error", (error) => {
+        reject(error);
+      });
+
+      child.on("close", (code) => {
+        resolve({
+          output: output.join(""),
+          errorCode: code ?? 1,
+        });
+      });
+    },
+  );
 }
 
 function normalizeCommand(command: CliCommand): CliCommand {

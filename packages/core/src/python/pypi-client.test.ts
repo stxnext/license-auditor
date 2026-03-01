@@ -18,27 +18,31 @@ afterEach(() => {
 
 describe("fetchPypiProjectMetadata", () => {
   it("returns parsed metadata when PyPI responds with 200", async () => {
-    getMock.mockImplementation((_: string, __: object, callback: (response: MockResponse) => void) => {
-      const request = createMockRequest();
-      queueMicrotask(() => {
-        const response = createMockResponse(200);
-        callback(response);
-        response.emit(
-          "data",
-          JSON.stringify({
-            info: {
-              name: "requests",
-              version: "2.31.0",
-              license: "Apache-2.0",
-              license_expression: "Apache-2.0",
-              classifiers: ["License :: OSI Approved :: Apache Software License"],
-            },
-          }),
-        );
-        response.emit("end");
-      });
-      return request;
-    });
+    getMock.mockImplementation(
+      (_: string, __: object, callback: (response: MockResponse) => void) => {
+        const request = createMockRequest();
+        queueMicrotask(() => {
+          const response = createMockResponse(200);
+          callback(response);
+          response.emit(
+            "data",
+            JSON.stringify({
+              info: {
+                name: "requests",
+                version: "2.31.0",
+                license: "Apache-2.0",
+                ["license_expression"]: "Apache-2.0",
+                classifiers: [
+                  "License :: OSI Approved :: Apache Software License",
+                ],
+              },
+            }),
+          );
+          response.emit("end");
+        });
+        return request;
+      },
+    );
 
     const metadata = await fetchPypiProjectMetadata({
       name: "requests",
@@ -55,14 +59,16 @@ describe("fetchPypiProjectMetadata", () => {
   });
 
   it("returns null when status code is not 200", async () => {
-    getMock.mockImplementation((_: string, __: object, callback: (response: MockResponse) => void) => {
-      const request = createMockRequest();
-      queueMicrotask(() => {
-        const response = createMockResponse(404);
-        callback(response);
-      });
-      return request;
-    });
+    getMock.mockImplementation(
+      (_: string, __: object, callback: (response: MockResponse) => void) => {
+        const request = createMockRequest();
+        queueMicrotask(() => {
+          const response = createMockResponse(404);
+          callback(response);
+        });
+        return request;
+      },
+    );
 
     const metadata = await fetchPypiProjectMetadata({
       name: "unknown-project",
@@ -73,16 +79,18 @@ describe("fetchPypiProjectMetadata", () => {
   });
 
   it("returns null on malformed JSON response", async () => {
-    getMock.mockImplementation((_: string, __: object, callback: (response: MockResponse) => void) => {
-      const request = createMockRequest();
-      queueMicrotask(() => {
-        const response = createMockResponse(200);
-        callback(response);
-        response.emit("data", "{not valid json");
-        response.emit("end");
-      });
-      return request;
-    });
+    getMock.mockImplementation(
+      (_: string, __: object, callback: (response: MockResponse) => void) => {
+        const request = createMockRequest();
+        queueMicrotask(() => {
+          const response = createMockResponse(200);
+          callback(response);
+          response.emit("data", "{not valid json");
+          response.emit("end");
+        });
+        return request;
+      },
+    );
 
     const metadata = await fetchPypiProjectMetadata({
       name: "requests",
@@ -123,14 +131,14 @@ type MockResponse = EventEmitter & {
 
 function createMockRequest(): MockRequest {
   const request = new EventEmitter() as MockRequest;
-  request.destroy = () => undefined;
+  request.destroy = (): void => {};
   return request;
 }
 
 function createMockResponse(statusCode: number): MockResponse {
   const response = new EventEmitter() as MockResponse;
   response.statusCode = statusCode;
-  response.resume = () => undefined;
-  response.setEncoding = () => undefined;
+  response.resume = (): void => {};
+  response.setEncoding = (_encoding: string): void => {};
   return response;
 }

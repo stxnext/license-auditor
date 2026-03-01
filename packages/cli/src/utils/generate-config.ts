@@ -65,7 +65,11 @@ export async function generateConfig(
     const fileName = getConfigFileName(extension);
     const destinationPath = path.join(dir, fileName);
 
-    await fs.writeFile(destinationPath, renderConfig(config, extension), "utf8");
+    await fs.writeFile(
+      destinationPath,
+      renderConfig(config, extension),
+      "utf8",
+    );
 
     return `Configured license-auditor with ${configListType} license whitelist and blacklist at: ${destinationPath}`;
   } catch (error) {

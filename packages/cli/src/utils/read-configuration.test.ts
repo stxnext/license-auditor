@@ -8,11 +8,13 @@ const tmpDirs: string[] = [];
 
 afterEach(async () => {
   await Promise.all(
-    tmpDirs.map((directory) => fs.rm(directory, { recursive: true, force: true })),
+    tmpDirs.map((directory) =>
+      fs.rm(directory, { recursive: true, force: true }),
+    ),
   );
   tmpDirs.length = 0;
 
-  delete (globalThis as { Bun?: unknown }).Bun;
+  Reflect.deleteProperty(globalThis as Record<string, unknown>, "Bun");
 });
 
 describe("readConfiguration", () => {
@@ -54,16 +56,15 @@ describe("readConfiguration", () => {
       "utf8",
     );
 
-    (globalThis as { Bun?: { YAML: { parse: (input: string) => unknown } } }).Bun =
-      {
-        YAML: {
-          parse: () => ({
-            whitelist: ["MIT"],
-            blacklist: ["GPL-3.0-only"],
-            overrides: {},
-          }),
-        },
-      };
+    const bunRuntime: Record<string, unknown> = {};
+    bunRuntime["YAML"] = {
+      parse: () => ({
+        whitelist: ["MIT"],
+        blacklist: ["GPL-3.0-only"],
+        overrides: {},
+      }),
+    };
+    (globalThis as Record<string, unknown>)["Bun"] = bunRuntime;
 
     const result = await readConfiguration(projectRoot);
 
@@ -80,7 +81,7 @@ describe("readConfiguration", () => {
   });
 });
 
-async function createProjectDirectory() {
+async function createProjectDirectory(): Promise<string> {
   const directory = await fs.mkdtemp(path.join(os.tmpdir(), "lac-cli-config-"));
   tmpDirs.push(directory);
   return directory;

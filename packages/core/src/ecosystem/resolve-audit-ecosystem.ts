@@ -33,7 +33,7 @@ export function resolveAuditEcosystem({
     throw new Error(
       [
         "Detected both Node and Python project signals.",
-        "Set ecosystem in config (ecosystem: \"node\" | \"python\" | \"both\") or pass --ecosystem.",
+        'Set ecosystem in config (ecosystem: "node" | "python" | "both") or pass --ecosystem.',
       ].join(" "),
     );
   }
